@@ -137,7 +137,6 @@ table.tb td,table.tb th{border:1px solid var(--line);padding:7px 9px;text-align:
 <script>
 /* =========================================================
    VESTA v4 · F0 completo — PWA · Maputo · dados 100% locais
-   wishlist · relatório semanal · duplicados · testes §16
    ========================================================= */
 const LS='vesta_v4';
 function fresh(){return{onboard:false,obStep:1,body:{},profile:{},pecas:[],dias:{},hist:[],regras:[],
@@ -148,8 +147,6 @@ function save(){localStorage.setItem(LS,JSON.stringify(DB))}
 let TAB='hoje';
 let SESS={env:null,delta:0,looks:[],idx:0,ms:0,pend:null,sub:null,
   obPeca:{familias:['navy'],estacoes:[],ambientes:[],formalidade:3}};
-
-/* ---------- domínio ---------- */
 const CORES={'navy':'#24344d','branco':'#f7f4ec','creme':'#e9dfc8','camel':'#b98d5e','cognac':'#96552b',
  'azul-céu':'#a8c3d6','oliva':'#6b6b45','taupe':'#8a7f72','cinza':'#9a9a9a','ganga escura':'#31405c',
  'castanho':'#5d4030','preto':'#23201d','kapulana':'#b34a2f'};
@@ -200,8 +197,6 @@ const ARQ=[
  {n:'Casaco leve camel',grupo:'camada',cat:'Casaco leve',fam:'camel',tec:'malha',form:3,amb:['VIAGENS','CASUAL'],est:['meia-estação','inverno'],pr:[2800,5200,9800]}];
 const LOJAS=[['Jet · baixo Maé','Pep'],['Mr Price · Baía Mall','Woolworths · Polana Shopping'],
  ['Foschini · Polana','Sapataria da Av. Guerra Popular','Xiquelene / Mercado Central']];
-
-/* ---------- utilidades ---------- */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -230,14 +225,10 @@ function lerImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL
  i.onload=()=>res({i,u});i.onerror=rej;i.src=u})}
 function pickFile(cb,cam){const i=document.createElement('input');i.type='file';i.accept='image/*';
  if(cam)i.capture='environment';i.onchange=()=>{if(i.files[0])cb(i.files[0])};i.click()}
-
-/* ---------- clima de Maputo (simulado, determinístico) ---------- */
 function clima(iso){const m=+iso.slice(5,7);const chuv=m>=11||m<=3;const seed=hashStr(iso)%100;
  const chove=seed<(chuv?55:12);const temp=chuv?27+(seed%6):19+(seed%8);
  const est=chuv?'verão':(m===4||m===5||m===10?'meia-estação':'inverno');
  return{chuv,chove,temp,est,uv:chuv?9:6}}
-
-/* ---------- regras ---------- */
 function alvoForm(env){const base=AMBIENTES[env].f;return Math.max(1,Math.min(5,base+(DB.pesos[env]||0)))}
 function bloqueadaPeca(env,p){return (DB.pesoPecas[env]||{})[p.id]<=-6}
 function violaDuras(env,items,cl){cl=cl||clima(hoje());
@@ -245,8 +236,6 @@ function violaDuras(env,items,cl){cl=cl||clima(hoje());
  if(cl.chove&&items.some(p=>p.tecido==='camurça'||(p.tecido==='linho'&&['creme','branco'].includes(p.familias[0]))))return'R2 · camurça/linho claro em dia de chuva';
  for(const r of DB.regras)if(r.ambiente===env&&items.some(p=>p.categoria===r.categoria&&p.familias.includes(r.familia)))return r.texto;
  return null}
-
-/* ---------- motor de looks ---------- */
 function pecasDe(grupo,env){return DB.pecas.filter(p=>p.grupo===grupo&&(p.ambientes.length===0||p.ambientes.includes(env))&&!bloqueadaPeca(env,p))}
 function escolherAcc(b,s,env,alvo){const A=DB.pecas.filter(p=>p.grupo==='acessorio'&&!bloqueadaPeca(env,p));const out=[];
  const cint=A.filter(p=>p.categoria==='Cinto');
@@ -304,8 +293,6 @@ function indiceRoupa(){let total=0;const por={};
 function snapshot(L){const min=p=>p?{id:p.id,nome:p.nome,foto:p.foto,cor:p.familias[0],cat:p.categoria,gr:p.grupo,f:p.formalidade}:null;
  return{it:[min(L.b),min(L.t),min(L.s),min(L.cam),...L.acc.map(min)].filter(Boolean),score:L.score,
  avisos:L.avisos,porques:L.porques}}
-
-/* ---------- gap analysis & compras & wishlist ---------- */
 function temArq(a){return DB.pecas.some(p=>p.grupo===a.grupo&&p.familias.includes(a.fam)&&Math.abs(p.formalidade-a.form)<=1)}
 function arqPeca(a){return{id:'arq_'+a.n,grupo:a.grupo,categoria:a.cat,familias:[a.fam],tecido:a.tec,
  formalidade:a.form,estacoes:a.est,ambientes:a.amb,padrao:!!a.pad,nome:a.n,foto:svgPeca(a.fam,a.cat,a.grupo,a.pad),virtual:true}}
@@ -333,8 +320,6 @@ function combosComArq(sim){const res=[];
  return res}
 function promoDe(n){const week=Math.floor(Date.now()/6048e5);
  return(hashStr(n+'·'+week)%100)<35?10+(hashStr(n+week)%16):0}
-
-/* ---------- relatório semanal ---------- */
 function relatorioSemanal(){const dias=[];for(let i=0;i<7;i++)dias.push(addD(hoje(),-i));
  const hs=DB.hist.filter(h=>dias.includes(h.data));
  const noites=hs.filter(h=>h.noite);
@@ -343,12 +328,10 @@ function relatorioSemanal(){const dias=[];for(let i=0;i<7;i++)dias.push(addD(hoj
  const fits=dias.map(d=>DB.dias[d]?.fit?.score).filter(Boolean);
  const fitMed=fits.length?Math.round(fits.reduce((a,b)=>a+b,0)/fits.length):null;
  return{hs,noites,aceit,fitMed,ind:indiceRoupa(),prox:sugestoes()[0]}}
-
-/* ---------- testes de propriedade §16 ---------- */
 function testesPropriedade(){const t0=performance.now();const cl=clima(hoje());const P=DB.pecas;
  if(P.length<3)return{erro:'Adiciona pelo menos 3 peças para correr o teste (o onboarding exige 4).'};
  let cand=0,aceites=0,viol=0;
- const checa=(env,items)=>{ /* verificação independente das regras duras */
+ const checa=(env,items)=>{
   if(env==='TRABALHO'&&items.some(p=>p.grupo==='baixo'&&(p.familias.includes('creme')||p.familias.includes('branco'))))return true;
   if(cl.chove&&items.some(p=>p.tecido==='camurça'||(p.tecido==='linho'&&['creme','branco'].includes(p.familias[0]))))return true;
   for(const r of DB.regras)if(r.ambiente===env&&items.some(p=>p.categoria===r.categoria&&p.familias.includes(r.familia)))return true;
@@ -359,8 +342,6 @@ function testesPropriedade(){const t0=performance.now();const cl=clima(hoje());c
    if(!violaDuras(env,items,cl)){aceites++;if(checa(env,items))viol++}}}
  const s1=indiceRoupa().total,s2=indiceRoupa().total;
  return{cand,aceites,viol,snap:s1===s2,snapVal:s1,ms:Math.round(performance.now()-t0)}}
-
-/* ---------- QC de fotos (o fotógrafo reclama) ---------- */
 async function qcFoto(file,o={}){o={minH:420,vertical:true,tol:55,...o};
  try{const{i,u}=await lerImg(file);const prob=[];let q=95;
   if(o.vertical&&i.width>i.height*1.05){prob.push('Orientação errada — segura o telemóvel na VERTICAL.');q-=30}
@@ -374,8 +355,6 @@ async function qcFoto(file,o={}){o={minH:420,vertical:true,tol:55,...o};
   q=Math.max(5,Math.min(99,q+(hashStr(file.name)%7)-3));
   return{ok:q>=60&&prob.length===0,q,prob,u,lum,img:i}}
  catch(e){return{ok:false,q:0,prob:['Não consegui ler a imagem — tenta outra vez.'],u:null,lum:0}}}
-
-/* ---------- SVG de peças + referência editorial ---------- */
 function svgPeca(fam,cat,grupo,padrao){const c=CORES[fam]||'#8a7f72';const fundo='#efe8d8';
  let sh='';
  const pad=fam==='kapulana'||padrao?`<defs><pattern id="kp" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="${c}"/><circle cx="7" cy="7" r="2.6" fill="#f2e8d5" opacity=".85"/><path d="M0 14L7 7l7 7" stroke="#7c3320" stroke-width="1.6" fill="none"/></pattern></defs>`:'';
@@ -413,25 +392,20 @@ function svgEditorialRaw(t,b,s,cam){t=t||'#9a9a9a';b=b||'#8a7f72';s=s||'#5d4030'
  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg)}
 const svgEditorial=L=>svgEditorialRaw(CORES[L.t.familias[0]],CORES[L.b.familias[0]],CORES[L.s.familias[0]],L.cam?CORES[L.cam.familias[0]]:null);
 const CREDITO='Referência editorial · ilustração VESTA — inspiração: Regra & Estilo / @ozero_center (quiet luxury, riviera urbana)';
-
-/* ================= AÇÕES ================= */
 const V={
  tab(t){TAB=t;render();window.scrollTo(0,0)},
  fechar(){$('modal-root').innerHTML=''},
  escuro(){DB.dark=!DB.dark;save();render()},
- /* ---- onboarding corpo ---- */
  fotoAngulo(id){pickFile(async f=>{const rosto=id.startsWith('rosto');
   const r=await qcFoto(f,{minH:rosto?300:420,vertical:!rosto,tol:55});
   if(r.ok){DB.body[id]={src:comprimir(r.img,800,.7),q:r.q};save();toast('Boa foto. Aprovada ('+r.q+'/100).')}
   else{DB.body[id]={erro:r.prob,q:r.q};save();toast('O fotógrafo reclama: refaz a foto.')}
   render()},true)},
- /* ---- identidade ---- */
  guardarIdentidade(){const g=id=>($(id)?.value||'').trim();
   if(!g('p_nome')){toast('Diz-nos o teu nome.');return}
   DB.profile={nome:g('p_nome'),bairro:g('p_bairro'),idade:+g('p_idade')||null,altura:+g('p_altura')||null,
    cabelo:g('p_cabelo'),porte:g('p_porte'),tom:g('p_tom'),subtom:SESS.sub||DB.profile?.subtom||'quente'};
   DB.obStep=3;save();render()},
- /* ---- peças (com deteção de duplicados §5.3) ---- */
  abrirPeca(){SESS.obPeca={familias:['navy'],estacoes:[],ambientes:[],formalidade:3,tecido:'algodão',foto:null};
   modal(V._formPeca())},
  _formPeca(){const o=SESS.obPeca;
@@ -473,7 +447,6 @@ const V={
   <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
   <button class="btn danger" style="flex:1" onclick="DB.pecas=DB.pecas.filter(p=>p.id!=='${id}');save();V.fechar();render();toast('Peça removida.')">Remover</button></div>`)},
  obEntrar(){DB.onboard=true;save();toast('Bem-vindo à VESTA, '+(DB.profile?.nome||'')+'. Para onde vais hoje?');render()},
- /* ---- hoje ---- */
  setEnv(e){SESS.env=e;SESS.looks=[];render()},
  setDelta(d){SESS.delta=d;render()},
  compor(){if(!SESS.env){toast('Escolhe primeiro para onde vais.');return}
@@ -492,11 +465,9 @@ const V={
   DB.dias[hoje()]={...(DB.dias[hoje()]||{}),env:SESS.env,hora:$('hora')?.value||'08:00',look:snap,delta:SESS.delta};
   [L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>{const r=DB.pecas.find(x=>x.id===p.id);if(r)r.vezes=(r.vezes||0)+1});
   const hi=DB.hist.findIndex(x=>x.data===hoje());
-  const entry={data:hoje(),env:SESS.env,look:snap};
-  if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:SESS.env,look:snap};else DB.hist.push(entry);
+  if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:SESS.env,look:snap};else DB.hist.push({data:hoje(),env:SESS.env,look:snap});
   save();SESS.looks=[];
   toast('Plano do dia guardado. Já vesti → foto ao espelho quando quiseres.');render()},
- /* ---- espelho ---- */
  espelho(){const d=DB.dias[hoje()];if(!d){toast('Primeiro compõe e guarda um look.');return}
   pickFile(async f=>{const r=await qcFoto(f,{minH:300,vertical:true,tol:50});
    if(!r.ok){toast('⚠ '+r.prob[0]);return}
@@ -517,7 +488,6 @@ const V={
    const score=Math.max(40,Math.min(98,Math.round(56+passed*7+(r.lum-85)/6)));
    d.fit={foto:comprimir(r.img,800,.7),score,checks,cons};save();render();
    toast('Fit check: '+score+'/100')},true)},
- /* ---- noite ---- */
  noite(res){const d=DB.dias[hoje()];if(!d)return;
   const neg=['criticado','mal falado','inadequado'].includes(res);
   modal(`<h3 class="serif" style="font-size:24px">Noite · ${res}</h3>
@@ -533,14 +503,12 @@ const V={
    :`Recalibrar ${d.env}: “${pq||res}”. Formalidade-alvo ajustada e caminhos falhados bloqueados 2 semanas.`};
   const h=DB.hist.find(x=>x.data===hoje());if(h)h.noite=d.noite;
   save();V.fechar();toast('Lição aprendida e registada no histórico.');render()},
- /* ---- semana ---- */
  usarSemana(i){const p=planosSemana()[i];
   DB.dias[hoje()]={...(DB.dias[hoje()]||{}),env:p.env,hora:'08:00',look:p.snap};
   const hi=DB.hist.findIndex(x=>x.data===hoje());
   if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:p.env,look:p.snap};
   else DB.hist.push({data:hoje(),env:p.env,look:p.snap});
   save();TAB='hoje';toast('Plano de '+fmtData(p.dt,true)+' aplicado a hoje.');render()},
- /* ---- comprar & wishlist ---- */
  comprar(i,t){const s=sugestoes()[i];const of=ofertas(s.a)[t];
   SESS.pend={a:s.a,preco:of.preco,loja:of.loja,gama:of.gama,promo:0};V._modalCompra()},
  comprarWish(i){const w=DB.wishlist[i];if(!w)return;const a=ARQ.find(x=>x.n===w.n);if(!a)return;
@@ -568,7 +536,6 @@ const V={
   DB.wishlist.push({n:s.a.n,data:hoje()});save();
   toast('♡ Na wishlist — a VESTA avisa se houver promoção.');render()},
  unwish(i){DB.wishlist.splice(i,1);save();render()},
- /* ---- regras & perfil ---- */
  addRegra(){const amb=$('r_amb').value,fam=$('r_fam').value,cat=$('r_cat').value;
   DB.regras.push({ambiente:amb,familia:fam,categoria:cat,texto:`Em ${amb}, nunca ${fam} em ${cat}`,ativa:true});
   save();V.fechar();toast('Regra dura adicionada.');render()},
@@ -584,7 +551,6 @@ const V={
  reset(){modal(`<h3 class="serif" style="font-size:22px">Apagar tudo?</h3><p class="mut">Base de dados volta a vazia (RGPD por desenho).</p>
   <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
   <button class="btn danger" style="flex:1" onclick="localStorage.removeItem(LS);location.reload()">Apagar</button></div>`);},
- /* ---- testes ---- */
  testes(){DB.lastTest=testesPropriedade();save();render();
   toast(DB.lastTest.erro||((DB.lastTest.viol===0?'✅ 0 violações em ':'❌ violações: ')+DB.lastTest.cand.toLocaleString('pt-PT')+' candidatos'))}
 };
@@ -596,11 +562,356 @@ function planosSemana(){const res=[];const uso={};
   const L=looks[0];if(L){[L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>uso[p.id]=(uso[p.id]||0)+1)}
   res.push({dt,env,cl:clima(dt),L,snap:L?snapshot(L):null})}
  return res}
-
 /* ================= VISTAS ================= */
 function chipClima(cl){return `<span class="pill">${cl.chove?'☔':'☀'} ${cl.temp}°C · UV${cl.uv}${cl.chove?' · chuva':' '}</span>`}
 function dotsF(f){return '●'.repeat(Math.round(f))+'○'.repeat(5-Math.round(f))}
 function imgP(p,cls){return `<img class="thumb ${cls||''}" src="${p.foto}" alt="${esc(p.nome)}">`}
 function anel(v){return `<div class="ring" style="--v:${v}"><b>${v}</b></div>`}
-
-function vOn
+function vOnbCorpo(){const done=ANGULOS.filter(a=>DB.body[a.id]?.src).length;
+ return `<div class="wrap fade">
+ <div class="prog"><i class="on"></i><i></i><i></i></div>
+ <div class="kick">Passo 1 de 3 · O teu corpo</div>
+ <h2 class="big-q">Seis ângulos.<br>Sem atalhos.</h2>
+ <p class="mut">O fotógrafo da VESTA é exigente: enquadramento, luz e orientação são verificados. Cada ângulo obrigatório bloqueia o avanço até aprovação.</p>
+ <div style="margin-top:14px">${ANGULOS.map(a=>{const b=DB.body[a.id];
+  return `<div class="ob-ang">
+   ${b?.src?`<img src="${b.src}">`:`<div class="thumb xs" style="width:52px;height:64px;display:grid;place-items:center;font-size:20px;color:var(--mut)">📷</div>`}
+   <div class="st"><b style="font-size:13.5px">${a.lb}</b><div class="mut" style="font-size:11px">${a.dica}</div>
+   ${b?.src?`<div class="okk">aprovada · qualidade ${b.q}/100</div>`:''}
+   ${b?.erro?`<div class="err">${b.erro.map(e=>'— '+e).join('<br>')}</div>`:''}</div>
+   <button class="btn btn-s" onclick="V.fotoAngulo('${a.id}')">${b?.src?'Repetir':'Fotografar'}</button></div>`}).join('')}</div>
+ <button class="btn btn-p" ${done<6?'disabled':''} onclick="DB.obStep=2;save();render()">Continuar · identidade →</button>
+ ${done<6?`<p class="mut" style="text-align:center;margin-top:8px">Faltam ${6-done} ângulos aprovados.</p>`:''}
+ </div>`}
+function vOnbIdent(){const p=DB.profile||{};const sel=(id,opts,v)=>`<select id="${id}">${opts.map(o=>`<option ${v===o?'selected':''}>${o}</option>`).join('')}</select>`;
+ return `<div class="wrap fade">
+ <div class="prog"><i class="on"></i><i class="on"></i><i></i></div>
+ <div class="kick">Passo 2 de 3 · Identidade</div>
+ <h2 class="big-q">Quem veste<br>a VESTA?</h2>
+ <div class="card">
+ <label class="lb">Nome</label><input id="p_nome" type="text" value="${esc(p.nome||'')}" placeholder="O teu nome">
+ <div class="grid2">
+ <div><label class="lb">Bairro</label>${sel('p_bairro',BAIRROS,p.bairro)}</div>
+ <div><label class="lb">Idade</label><input id="p_idade" type="number" value="${p.idade||''}"></div>
+ <div><label class="lb">Altura (cm)</label><input id="p_altura" type="number" value="${p.altura||''}"></div>
+ <div><label class="lb">Porte</label>${sel('p_porte',['esguio','médio','atlético','forte'],p.porte)}</div>
+ <div><label class="lb">Cabelo</label>${sel('p_cabelo',['curto','baixo','fade','afro','tranças','rastas','careca'],p.cabelo)}</div>
+ <div><label class="lb">Tom de pele</label>${sel('p_tom',['clara','média','morena','escura'],p.tom)}</div>
+ </div>
+ <label class="lb">Subtom (colorimetria)</label>
+ <div class="seg">${['quente','neutro','frio'].map(s=>`<button class="${(SESS.sub||p.subtom||'quente')===s?'on':''}" onclick="SESS.sub='${s}';[...this.parentNode.children].forEach(b=>b.classList.toggle('on',b===this))">${s}</button>`).join('')}</div>
+ <p class="mut" style="margin-top:10px">Subtom quente → paleta creme, camel, cognac, navy, azul-céu; contraste alto.</p>
+ </div>
+ <button class="btn btn-p" onclick="V.guardarIdentidade()">Continuar · guarda-roupa →</button>
+ </div>`}
+function vOnbRoupa(){const n=DB.pecas.length;
+ const tem=g=>DB.pecas.some(p=>p.grupo===g);
+ const ok=n>=4&&tem('topo')&&tem('baixo')&&tem('calcado');
+ return `<div class="wrap fade">
+ <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+ <div class="kick">Passo 3 de 3 · Guarda-roupa</div>
+ <h2 class="big-q">Peça a peça.<br>Só peças REAIS.</h2>
+ <p class="mut">Mínimo para abrir a app: <b>4 peças</b> — pelo menos 1 topo, 1 baixo e 1 calçado. Sem foto também dá: a VESTA desenha a peça na cor escolhida. Duplicados são detectados.</p>
+ <div class="card"><div class="row" style="justify-content:space-between">
+  <b>${n}/4 peças</b><span class="pill ${tem('topo')?'ok':''}">topo ${tem('topo')?'✓':'—'}</span>
+  <span class="pill ${tem('baixo')?'ok':''}">baixo ${tem('baixo')?'✓':'—'}</span>
+  <span class="pill ${tem('calcado')?'ok':''}">calçado ${tem('calcado')?'✓':'—'}</span></div>
+  <div class="bar" style="margin-top:10px"><i style="width:${Math.min(100,n*25)}%"></i></div></div>
+ <button class="btn btn-p" onclick="V.abrirPeca()">＋ Digitalizar peça</button>
+ <div style="margin-top:14px">${DB.pecas.map(p=>`<div class="ob-ang">${imgP(p,'xs')}
+  <div class="st"><b style="font-size:13px">${esc(p.nome)}</b><div class="mut" style="font-size:11px">${p.categoria} · ${p.tecido} · formalidade ${p.formalidade}/5</div></div>
+  <button class="btn btn-s" onclick="V.removerPeca('${p.id}')">✕</button></div>`).join('')||''}</div>
+ <button class="btn btn-p" style="margin-top:8px" ${ok?'':'disabled'} onclick="V.obEntrar()">Entrar na VESTA →</button>
+ </div>`}
+function vPergunta(cl){
+ return `<div class="wrap fade">
+ <div class="kick">${fmtData(hoje())}</div>
+ <h2 class="big-q">Para onde vais<br>hoje?</h2>
+ <div class="row" style="margin:8px 0 4px;flex-wrap:wrap">${chipClima(cl)}<span class="pill">${DB.pecas.length} peças sincronizadas</span></div>
+ <p class="mut" style="margin-bottom:14px">Do chapa à reunião na Baixa, do jantar na Costa do Sol ao voo MPM→JNB — a VESTA compõe para o teu dia real.</p>
+ <div class="chips">${Object.keys(AMBIENTES).map(a=>`<span class="chip ${SESS.env===a?'on':''}" onclick="V.setEnv('${a}')">${a.toLowerCase()}</span>`).join('')}</div>
+ <div class="grid2" style="margin-top:14px">
+  <div><label class="lb">Horário</label><input type="time" id="hora" value="08:00"></div>
+  <div><label class="lb">Ajuste · 1 pergunta</label><div class="seg">
+   <button class="${SESS.delta===-1?'on':''}" onclick="V.setDelta(-1)">descontraído</button>
+   <button class="${SESS.delta===0?'on':''}" onclick="V.setDelta(0)">certo</button>
+   <button class="${SESS.delta===1?'on':''}" onclick="V.setDelta(1)">formal</button></div></div></div>
+ <button class="btn btn-p" style="margin-top:16px" onclick="V.compor()">Compor look →</button>
+ <p class="mut" style="margin-top:10px">Ordem de decisão visível: regras duras → ambiente → corpo/ADN → colorimetria → regras clássicas.</p>
+ </div>`}
+function vLookCompose(cl){const L=SESS.looks[SESS.idx];
+ return `<div class="wrap fade">
+ <div class="card">
+  <div class="row" style="justify-content:space-between"><div>
+   <div class="kick">${SESS.env} · alvo ${(alvoForm(SESS.env)+SESS.delta).toFixed(1)}</div>
+   <h3>Look composto</h3></div>
+   <div style="text-align:right"><span class="pill gold">${dotsF(alvoForm(SESS.env)+SESS.delta)}</span><br>
+   <span class="pill ok" style="margin-top:4px;display:inline-block">${SESS.ms}ms · meta &lt;2s ✓</span></div></div>
+  <img class="thumb" style="width:100%;aspect-ratio:3/2;margin-top:10px" src="${svgEditorial(L)}">
+  <p class="mut" style="font-size:10.5px;margin-top:4px">${CREDITO}</p>
+  <div class="lookgrid" style="margin-top:12px">
+   ${imgP(L.t)}${imgP(L.b)}${imgP(L.s)}${L.cam?imgP(L.cam):`<div class="thumb" style="display:grid;place-items:center;color:var(--mut);font-size:11px;text-align:center;padding:8px">sem camada<br>(${cl.temp}°C)</div>`}</div>
+  ${L.acc.length?`<div class="accrow">${L.acc.map(a=>`<div style="text-align:center">${imgP(a,'xs')}<div class="mut" style="font-size:9.5px">${a.cat}</div></div>`).join('')}</div>`:''}
+  <div class="divid"></div>
+  <b style="font-size:13px">Porque funciona — para ti${DB.profile?.nome?', '+DB.profile.nome:''}</b>
+  <ul style="margin:6px 0 0 18px;padding:0;font-size:12.5px;line-height:1.7;color:var(--mut)">
+   ${L.porques.map(p=>`<li>${p}</li>`).join('')||'<li>combinação válida no grafo</li>'}</ul>
+  ${L.avisos.length?`<div style="margin-top:8px">${L.avisos.map(a=>`<div class="err">⚠ ${a}</div>`).join('')}</div>`:''}
+  <div class="divid"></div>
+  <div class="row">
+   <button class="btn btn-g" style="flex:1" onclick="V.gostar(-1)">👎</button>
+   <button class="btn btn-g" style="flex:1" onclick="V.gostar(1)">👍</button></div>
+  <button class="btn btn-p" style="margin-top:10px" onclick="V.guardarPlano()">Guardar como plano do dia</button>
+ </div>
+ ${SESS.looks.length>1?`<div class="card"><b style="font-size:13px">${SESS.looks.length-1} alternativas do grafo</b>
+  <div style="display:flex;gap:8px;overflow-x:auto;margin-top:10px">
+  ${SESS.looks.map((l,i)=>i===SESS.idx?'':`<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="V.altLook(${i})">
+   <div class="row" style="gap:3px">${imgP(l.t,'xs')}${imgP(l.b,'xs')}${imgP(l.s,'xs')}</div>
+   <span class="pill" style="margin-top:4px;display:inline-block">${l.score}</span></div>`).join('')}</div></div>`:''}
+ </div>`}
+function vPlano(d,cl){const L=d.look;
+ const it=gr=>L.it.find(p=>p.gr===gr);
+ return `<div class="wrap fade">
+ <div class="card">
+  <div class="kick">Hoje · ${fmtData(hoje())}</div>
+  <h3 class="serif" style="font-size:26px">Para onde vais hoje?</h3>
+  <div class="row" style="margin-top:6px;flex-wrap:wrap"><span class="pill gold">${d.env}</span><span class="pill">${d.hora}</span>${chipClima(cl)}</div>
+  <img class="thumb" style="width:100%;aspect-ratio:3/2;margin-top:10px" src="${svgEditorialRaw(it('topo')&&CORES[it('topo').cor],it('baixo')&&CORES[it('baixo').cor],it('calcado')&&CORES[it('calcado').cor],it('camada')&&CORES[it('camada').cor])}">
+  <p class="mut" style="font-size:10.5px;margin-top:4px">${CREDITO}</p>
+  <div class="lookgrid" style="margin-top:12px">
+   ${L.it.filter(p=>['topo','baixo','calcado','camada'].includes(p.gr)).map(p=>`<img class="thumb" src="${p.foto}">`).join('')}</div>
+  ${L.it.filter(p=>p.gr==='acessorio').length?`<div class="accrow">${L.it.filter(p=>p.gr==='acessorio').map(p=>`<div style="text-align:center"><img class="thumb xs" src="${p.foto}"><div class="mut" style="font-size:9.5px">${p.cat}</div></div>`).join('')}</div>`:''}
+  <p class="mut" style="margin-top:10px;font-size:12.5px">${L.porques.join(' · ')}</p>
+  <div class="divid"></div>
+  ${d.fit?`<div class="row">${anel(d.fit.score)}<div><b style="font-size:14px">Fit check da manhã</b>
+   <div class="mut" style="font-size:11.5px">${d.fit.checks.map(c=>`${c[1]?'✅':'⚠️'} ${c[0]}`).join('<br>')}</div></div></div>
+   <details style="margin-top:10px"><summary>Conselhos do espelho</summary><div class="bd">${d.fit.cons.map(c=>'• '+c).join('<br>')}</div></details>`
+  :`<button class="btn btn-p" onclick="V.espelho()">📸 Já vesti — foto ao espelho</button>
+   <p class="mut" style="text-align:center;margin-top:8px">Corpo inteiro, luz natural. A VESTA dá nota 0–100 + conselhos com as tuas peças.</p>`}
+  <button class="btn btn-g" style="margin-top:10px;width:100%" onclick="SESS.looks=[];render()">↺ Recompor look</button>
+ </div>
+ ${!d.noite?`<div class="card" style="border-style:dashed"><b style="font-size:13px">🌙 Ao fim do dia</b>
+  <p class="mut">A VESTA pergunta como foste visto — separador <b>Noite</b>.</p></div>`:''}
+ </div>`}
+function vHoje(){const d=DB.dias[hoje()];const cl=clima(hoje());
+ if(SESS.looks.length)return vLookCompose(cl);
+ if(d&&d.look)return vPlano(d,cl);
+ return vPergunta(cl)}
+function vNoite(){const d=DB.dias[hoje()];const noites=DB.hist.filter(h=>h.noite).slice(-5).reverse();
+ if(!d||!d.look)return `<div class="wrap fade"><div class="card"><h3 class="serif" style="font-size:24px">Noite</h3>
+  <p class="mut">Ainda não há plano do dia. Vai ao separador <b>Hoje</b> e compõe um look primeiro.</p></div></div>`;
+ const res=['elogiado','bem falado','notado','indiferente','criticado','mal falado','inadequado'];
+ return `<div class="wrap fade">
+ <div class="card">
+  <div class="kick">Feedback social · obrigatório</div>
+  <h3 class="serif" style="font-size:26px">Como foste visto hoje?</h3>
+  ${d.noite?`<div style="margin-top:10px"><span class="pill gold">${d.noite.res}</span>
+   <p style="font-size:13px;margin-top:10px"><b>Lição aprendida:</b> ${d.noite.licao}</p>
+   ${d.noite.pq?`<p class="mut">“${esc(d.noite.pq)}”</p>`:''}</div>`
+  :`<div class="chips" style="margin-top:12px">${res.map(r=>`<span class="chip night-chip" onclick="V.noite('${r}')">${r}</span>`).join('')}</div>`}
+ </div>
+ ${noites.length?`<div class="card"><b style="font-size:13px">Noites anteriores</b>
+  ${noites.map(h=>`<div class="row" style="margin-top:10px;justify-content:space-between">
+   <span class="mut" style="font-size:12px">${fmtData(h.data,true)} · ${h.env}</span>
+   <span class="pill ${['criticado','mal falado','inadequado'].includes(h.noite.res)?'bad':'ok'}">${h.noite.res}</span></div>`).join('')}</div>`:''}
+ </div>`}
+function vRoupa(){const ind=indiceRoupa();const maxV=Math.max(1,...Object.values(ind.por));
+ return `<div class="wrap fade">
+ <div class="card"><div class="row" style="justify-content:space-between;align-items:center">
+  <div><div class="kick">Índice do guarda-roupa</div><h3 style="font-size:30px">${ind.total} looks válidos</h3></div>
+  <button class="btn btn-s" onclick="V.abrirPeca()">＋ peça</button></div>
+  <p class="mut">O grafo é tão bom quanto o inventário — digitaliza ≥ 80% do que usas por mês.</p></div>
+ ${DB.pecas.map(p=>{const v=ind.por[p.id]||0;
+  return `<div class="card" style="padding:12px"><div class="row">
+   ${imgP(p,'sm')}
+   <div style="flex:1"><div class="row" style="gap:6px"><b style="font-size:13.5px">${esc(p.nome)}</b>
+    ${p.nova?'<span class="pill gold">NOVA</span>':''}</div>
+   <div class="mut" style="font-size:11px">${p.categoria} · ${p.tecido} · ${dotsF(p.formalidade)} · ${p.estado} · usado ${p.vezes||0}×</div>
+   <div class="row" style="margin-top:6px"><div class="bar" style="flex:1"><i style="width:${v/maxV*100}%"></i></div>
+   <span class="mut" style="font-size:10.5px">${v} looks</span></div></div>
+   <button class="btn btn-s" onclick="V.removerPeca('${p.id}')">✕</button></div></div>`}).join('')||''}
+ </div>`}
+function vSemana(){const ps=planosSemana();
+ return `<div class="wrap fade">
+ <div class="card"><div class="kick">Plano semanal · composto de véspera</div>
+ <h3 class="serif" style="font-size:24px">Próximos 7 dias</h3>
+ <p class="mut">Clima de Maputo + ambientes por defeito (seg–sex trabalho, sábado social — um jantar na Costa do Sol?, domingo casual). A notificação matinal “Para onde vais hoje?” chega na F2.</p></div>
+ ${ps.map((p,i)=>`<div class="card" style="padding:12px">
+  <div class="row" style="justify-content:space-between">
+   <b style="font-size:13.5px">${fmtData(p.dt)}</b>
+   <span class="pill">${p.env.toLowerCase()}</span>${chipClima(p.cl)}
+   ${i===0?`<button class="btn btn-s" onclick="V.usarSemana(${i})">usar</button>`:''}</div>
+  ${p.snap?`<div class="row" style="margin-top:8px;gap:6px">
+   ${p.snap.it.slice(0,4).map(x=>`<img class="thumb xs" src="${x.foto}">`).join('')}
+   <span class="pill gold" style="margin-left:auto">${p.snap.score}</span></div>`
+  :'<p class="mut" style="margin-top:6px">sem caminho válido — faltam peças</p>'}</div>`).join('')}
+ </div>`}
+function vComprar(){const sg=sugestoes();const cl=clima(hoje());
+ return `<div class="wrap fade">
+ <div class="card"><div class="kick">Inteligência de compras · Maputo</div>
+ <h3 class="serif" style="font-size:24px">Gap analysis</h3>
+ <p class="mut">Cada sugestão simula a entrada da peça no grafo: SCORE = Δlooks × necessidade do ambiente × ADN × colorimetria × qualidade/preço. Orçamento mensal: <b>${fmtMt(DB.budget)}</b> (edita no Perfil). Melhor custo-benefício primeiro; nunca duplicados.</p></div>
+ ${cl.chuv?`<div class="card" style="border-style:dashed"><span class="pill bad">época chuvosa</span>
+  <p class="mut" style="margin-top:6px">Nada de camurça nem linho claro até Março — a chuva de Maputo não perdoa. Prioridade: alfaiataria leve e couro.</p></div>`:''}
+ ${sg.length?sg.map((s,i)=>{const tot=Object.values(s.deltas).reduce((a,b)=>a+b,0);
+  const mx=Math.max(1,...Object.values(s.deltas));
+  const combos=combosComArq(s.sim);
+  const naWish=DB.wishlist.some(w=>w.n===s.a.n);
+  return `<div class="card">
+   <div class="row" style="justify-content:space-between"><b style="font-size:14.5px">${s.a.n}</b>
+   <span class="row" style="gap:6px"><span class="pill gold">+${tot} looks</span>
+   <button class="btn btn-s" ${naWish?'disabled':''} onclick="V.wish(${i})">${naWish?'♡ na lista':'♡'}</button></span></div>
+   <div class="row" style="gap:4px;margin-top:6px"><img class="thumb xs" src="${svgPeca(s.a.fam,s.a.cat,s.a.grupo)}">
+   <div style="flex:1">${Object.entries(s.deltas).filter(([,v])=>v>0).map(([e,v])=>`
+    <div class="row" style="gap:6px;margin-top:3px"><span class="mut" style="font-size:10px;width:64px">${e.toLowerCase()}</span>
+    <div class="bar" style="flex:1"><i style="width:${v/mx*100}%"></i></div>
+    <span class="mut" style="font-size:10px">+${v}</span></div>`).join('')}</div></div>
+   <p class="mut" style="margin-top:8px;font-size:12px">Motivo: <b>+${tot} combinações</b>${s.deltas.TRABALHO?`, ${s.deltas.TRABALHO} para trabalho`:''} · combinações por 1000 Mt: <b>${(tot/(s.a.pr[1]/1000)).toFixed(1)}</b></p>
+   ${combos.length?`<div class="row" style="gap:6px;margin-top:8px">${combos.map(c=>`<span class="row" style="gap:2px">${imgP(c.t,'xs')}${imgP(c.b,'xs')}${imgP(c.s,'xs')}</span>`).join('')}</div>`:''}
+   <div class="divid"></div>
+   ${ofertas(s.a).map((o,t)=>`<div class="row" style="justify-content:space-between;margin-top:8px">
+    <div><span class="pill">${o.gama}</span> <span style="font-size:12.5px;font-weight:700">${o.loja}</span>
+    <div class="mut" style="font-size:11px">${fmtMt(o.preco)} · ≈ ${fmtMt(o.preco/Math.max(1,tot*2))}/uso</div></div>
+    <button class="btn btn-s" onclick="V.comprar(${i},${t})">Comprar</button></div>`).join('')}
+  </div>`}).join('')
+ :`<div class="card"><p class="mut">Matriz completa — tens as peças-chave do ADN. 👌</p></div>`}
+ ${DB.wishlist.length?`<div class="card"><div class="kick">Wishlist · alertas de promoção</div>
+  ${DB.wishlist.map((w,i)=>{const a=ARQ.find(x=>x.n===w.n);if(!a)return'';const p=promoDe(w.n);
+   return `<div class="row" style="margin-top:10px;justify-content:space-between">
+    <div><b style="font-size:13px">${w.n}</b>
+    <div class="mut" style="font-size:11px">${p?`🔔 promoção simulada: −${p}% esta semana`:'sem promoção esta semana'} · desde ${fmtMt(a.pr[0])}</div></div>
+    <span class="row" style="gap:6px">
+    ${p?`<button class="btn btn-s" onclick="V.comprarWish(${i})">Comprar</button>`:''}
+    <button class="btn btn-s" onclick="V.unwish(${i})">✕</button></span></div>`}).join('')}</div>`:''}
+ ${DB.compras.length?`<div class="card"><b style="font-size:13px">Compras registadas</b>
+  ${DB.compras.map(c=>`<div class="row" style="justify-content:space-between;margin-top:8px">
+  <span style="font-size:12.5px">${c.arq} <span class="pill gold">+${c.deltaPrev}</span></span>
+  <span class="mut" style="font-size:11px">${fmtMt(c.preco)} · ${esc(c.loja)}</span></div>`).join('')}
+  <p class="mut" style="margin-top:8px">Previsto vs uso real é medido aos 30/60 dias (meta ≥ 80%).</p></div>`:''}
+ </div>`}
+function vRelatorio(){const r=relatorioSemanal();
+ return `<div class="card"><div class="kick">Relatório semanal · §10.2</div>
+ <h3 style="font-size:22px">A tua semana em números</h3>
+ <div class="grid2" style="margin-top:12px">
+  <div>${anel(r.aceit??0)}<div class="mut" style="font-size:11px;margin-top:4px">aceitação ${r.aceit===null?'— ainda sem noites':r.aceit+'%'} (meta ≥70%)</div></div>
+  <div>${anel(r.fitMed??0)}<div class="mut" style="font-size:11px;margin-top:4px">fit médio ${r.fitMed??'—'} (meta ≥80)</div></div>
+ </div>
+ <div class="row" style="margin-top:10px"><div class="bar" style="flex:1"><i style="width:${Math.min(100,r.ind.total)}%"></i></div>
+  <span class="mut" style="font-size:11px">índice do guarda-roupa: ${r.ind.total} looks</span></div>
+ ${r.prox?`<div class="divid"></div><b style="font-size:13px">Próxima melhor compra</b>
+  <div class="row" style="margin-top:6px"><img class="thumb xs" src="${svgPeca(r.prox.a.fam,r.prox.a.cat,r.prox.a.grupo)}">
+  <span style="font-size:13px">${r.prox.a.n}</span><span class="pill gold">+${Object.values(r.prox.deltas).reduce((a,b)=>a+b,0)} looks</span></div>`:''}
+ </div>`}
+function vHist(){const hs=[...DB.hist].reverse().slice(0,20);
+ return `<div class="wrap fade">
+ ${vRelatorio()}
+ <div class="card"><div class="kick">Histórico & autoaprimoramento</div>
+ <h3 class="serif" style="font-size:24px">Tudo fica guardado</h3>
+ <p class="mut">Looks, checks de espelho, noites, 👍/, compras, descartes. O re-ranking ajusta pesos por ambiente a cada noite.</p></div>
+ ${hs.map(h=>`<div class="card" style="padding:12px">
+  <div class="row" style="justify-content:space-between"><b style="font-size:13px">${fmtData(h.data)}</b>
+  <span class="pill">${h.env}</span><span class="pill gold">${h.look.score}</span>
+  ${h.noite?`<span class="pill ${['criticado','mal falado','inadequado'].includes(h.noite.res)?'bad':'ok'}">${h.noite.res}</span>`:''}</div>
+  <div class="row" style="gap:4px;margin-top:8px">${h.look.it.slice(0,5).map(p=>`<img class="thumb xs" src="${p.foto}">`).join('')}</div>
+  ${h.noite?.pq?`<p class="mut" style="font-size:11.5px;margin-top:6px">“${esc(h.noite.pq)}”</p>`:''}</div>`).join('')
+ ||'<div class="card"><p class="mut">Ainda sem dias registados.</p></div>'}
+ </div>`}
+function vPerfil(){const p=DB.profile||{};const sel=(id,opts,v)=>`<select id="${id}">${opts.map(o=>`<option ${v===o?'selected':''}>${o}</option>`).join('')}</select>`;
+ const palheta=p.subtom==='frio'?['navy','branco','cinza','taupe','ganga escura']:['navy','branco','creme','camel','cognac','azul-céu'];
+ return `<div class="wrap fade">
+ <div class="card">
+  <div class="kick">Perfil & regras</div>
+  <div class="grid2">
+  <div><label class="lb">Nome</label><input id="p_nome" value="${esc(p.nome||'')}"></div>
+  <div><label class="lb">Bairro</label>${sel('p_bairro',BAIRROS,p.bairro)}</div>
+  <div><label class="lb">Idade</label><input id="p_idade" type="number" value="${p.idade||''}"></div>
+  <div><label class="lb">Altura</label><input id="p_altura" type="number" value="${p.altura||''}"></div>
+  <div><label class="lb">Cabelo</label>${sel('p_cabelo',['curto','baixo','fade','afro','tranças','rastas','careca'],p.cabelo)}</div>
+  <div><label class="lb">Porte</label>${sel('p_porte',['esguio','médio','atlético','forte'],p.porte)}</div>
+  <div><label class="lb">Tom de pele</label>${sel('p_tom',['clara','média','morena','escura'],p.tom)}</div>
+  <div><label class="lb">Subtom</label>${sel('p_subtom',['quente','neutro','frio'],p.subtom)}</div></div>
+  <label class="lb">Orçamento mensal (Mt)</label><input id="p_budget" type="number" value="${DB.budget}">
+  <button class="btn btn-p" style="margin-top:14px" onclick="V.guardarPerfil()">Guardar perfil</button>
+ </div>
+ <div class="card"><b style="font-size:13px">Colorimetria</b>
+  <p class="mut">Tom ${p.tom||'—'} · subtom ${p.subtom||'quente'} · contraste alto</p>
+  <div class="chips" style="margin-top:8px">${palheta.map(c=>`<span class="pill"><span class="sw" style="background:${CORES[c]}"></span> ${c}</span>`).join('')}</div></div>
+ <div class="card"><b style="font-size:13px">Fotos do corpo (onboarding)</b>
+  <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${ANGULOS.map(a=>DB.body[a.id]?.src?`<img class="thumb xs" src="${DB.body[a.id].src}">`:'').join('')}</div></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><b style="font-size:13px">Regras duras</b>
+  <button class="btn btn-s" onclick="V.abrirRegra()">＋ regra</button></div>
+  <div style="margin-top:8px"><span class="pill bad">R1</span> <span style="font-size:12.5px">calças brancas/creme apenas casual/social — nunca trabalho</span></div>
+  <div style="margin-top:6px"><span class="pill bad">R2</span> <span style="font-size:12.5px">época chuvosa (nov–mar): nunca camurça/linho claro com chuva</span></div>
+  ${DB.regras.map(r=>`<div style="margin-top:6px"><span class="pill bad">R3+</span> <span style="font-size:12.5px">${r.texto}</span></div>`).join('')}</div>
+ <div class="card"><b style="font-size:13px">ADN de estilo</b>
+  <p class="mut">Quiet luxury / riviera urbano com alma moçambicana — alfaiataria leve, linhas limpas, sem logótipos. Kapulana como padrão-assinatura; preto só em acessórios.</p></div>
+ <button class="btn danger" style="width:100%" onclick="V.reset()">Apagar todos os dados</button>
+ </div>`}
+function vSpec(){const T=DB.lastTest;
+ return `<div class="wrap fade">
+ <div class="card"><div class="kick">Spec · consultável offline</div>
+ <h3 class="serif" style="font-size:24px">PRD, esquema & roadmap</h3></div>
+ <details><summary>Missão & objectivo</summary><div class="bd">Equipa sénior multidisciplinar (produto, visão computacional, estilista, UX, full-stack) para um estilista pessoal com IA em Maputo: peças REAIS digitalizadas, aparência real, ADN de estilo, looks por ocasião, validação ao espelho, feedback nocturno e compras estratégicas em Meticais.</div></details>
+ <details><summary>Esquema SQL (roadmap SQLCipher)</summary><pre>CREATE TABLE PERFIL (id, nome, idade, altura, porte,
+  cabelo, barba, tom_pele, subtom, bairro, cidade,
+  colorimetria JSON, adn JSON);
+CREATE TABLE CORPO_FOTOS (angulo TEXT PK, src, qualidade INT);
+CREATE TABLE PECAS (id PK, foto, categoria, familias JSON,
+  tecido, formalidade 1-5, estacoes JSON, ambientes JSON,
+  estado, vezes_usada, arquetipo);
+CREATE TABLE REGRAS_DURAS (id, codigo, texto, ambiente,
+  categoria, familias JSON, ativa);
+CREATE TABLE GRAFO (aresta_id, peca_a FK, peca_b FK,
+  harmonia, compativel, motivo);
+CREATE TABLE DIAS (data PK, plano JSON, check_manha JSON,
+  noite JSON);
+CREATE TABLE HISTORICO (id, data, ambiente, look, feedback,
+  fit, noite JSON);
+CREATE TABLE COMPRAS (id, peca_id FK, arquetipo, produto JSON,
+  preco_mt, loja, fase, delta_previsto JSON, delta_real JSON);
+CREATE TABLE WISHLIST (id, arquetipo, produto JSON, alerta_promo);</pre></details>
+ <details><summary>Arquitectura & privacidade</summary><div class="bd">MVP: PWA 100% local (este ficheiro), localStorage, motor de regras e grafo em JavaScript, offline-first. Roadmap: Flutter/RN + SQLite/SQLCipher, LLM multimodal com skills (pesquisa_produtos, meteorologia, try-on IDM-VTON), ML Kit on-device. Fotos nunca saem do dispositivo · RGPD por desenho.</div></details>
+ <details><summary>Roadmap</summary><div class="bd"><table class="tb">
+ <tr><th>Fase</th><th>Conteúdo</th></tr>
+ <tr><td>F0 · agora</td><td>Este protótipo completo: corpo + peças, grafo, fluxo diário, espelho, noites, gap analysis, wishlist, relatório semanal, compras em Mt, testes de propriedade</td></tr>
+ <tr><td>F1 · Q2</td><td>Flutter/RN + SQLCipher; câmara com recorte/classificação; ML Kit</td></tr>
+ <tr><td>F2 · Q3</td><td>Calendário; meteorologia real; notificação matinal; try-on</td></tr>
+ <tr><td>F3 · Q4</td><td>Pesquisa multi-loja com afiliados; alertas de promoções</td></tr></table></div></details>
+ <div class="card"><div class="kick">Testes & métricas · §16</div>
+  <b style="font-size:13px">Teste de propriedade</b>
+  <p class="mut">10⁴ candidatos por ambiente; as regras duras (R1, R2, R3+) nunca podem passar o filtro. O snapshot do grafo tem de ser determinístico. Meta de latência: look &lt; 2s.</p>
+  ${T&&!T.erro?`<div style="margin-top:10px;font-size:13px;line-height:1.9">
+   ${T.viol===0?'✅':'❌'} <b>${T.cand.toLocaleString('pt-PT')}</b> candidatos · <b>${T.aceites.toLocaleString('pt-PT')}</b> aceites · <b>${T.viol}</b> violações<br>
+   ${T.snap?'✅':'❌'} snapshot do grafo determinístico — ${T.snapVal} looks válidos<br>
+   ⏱ corrida em ${T.ms} ms</div>`:''}
+  ${T?.erro?`<p class="err">${T.erro}</p>`:''}
+  <button class="btn btn-p" style="margin-top:10px" onclick="V.testes()">Correr agora</button></div>
+ <details><summary>PUBLICAR · instalar no telemóvel</summary><div class="bd">
+  1. Cria o repositório no GitHub e cola estes ficheiros.<br>
+  2. Activa <b>Settings → Pages → main / (root)</b>.<br>
+  3. No Android: abre o URL no <b>Chrome → ⋮ → “Instalar aplicação”</b>.<br><br>
+  Ficheiros: <code>index.html</code>, <code>manifest.webmanifest</code>, <code>sw.js</code>, <code>README.md</code>, <code>PUBLICAR.md</code>, <code>vercel.json</code>, <code>.nojekyll</code>.</div></details>
+ </div>`}
+function render(){
+ if(DB.dark)document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');
+ if(!DB.onboard){
+  $('app').innerHTML=`<div class="hd"><div class="logo">VES<em>TA</em></div><div class="sub">estilista pessoal · Maputo</div><div class="sp"></div>
+  <button class="icobtn" onclick="V.escuro()">${DB.dark?'☀':'☾'}</button></div>`+
+  (DB.obStep===1?vOnbCorpo():DB.obStep===2?vOnbIdent():vOnbRoupa());return}
+ const cl=clima(hoje());
+ const tabs=[['hoje','Hoje','hoje'],['noite','Noite','noite'],['roupa','Guarda-Roupa','roupa'],
+  ['semana','Semana','semana'],['comprar','Comprar','compra'],['hist','Histórico','hist'],
+  ['perfil','Perfil','perfil'],['spec','Spec','spec']];
+ const views={hoje:vHoje,noite:vNoite,roupa:vRoupa,semana:vSemana,comprar:vComprar,hist:vHist,perfil:vPerfil,spec:vSpec};
+ $('app').innerHTML=`
+ <div class="hd"><div class="logo">VES<em>TA</em></div>
+  <div class="sub">${fmtData(hoje(),true)} · Maputo<br>${cl.chove?'☔':'☀'} ${cl.temp}°C · ${cl.est}</div><div class="sp"></div>
+  <button class="icobtn" onclick="V.escuro()">${DB.dark?'☀':'☾'}</button></div>
+ ${views[TAB]()}
+ <div class="navbar">${tabs.map(([t,lb,i])=>`<button class="${TAB===t?'on':''}" onclick="V.tab('${t}')">${ic(i)}${lb}</button>`).join('')}</div>`}
+window.V=V;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
