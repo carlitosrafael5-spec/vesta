@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VESTA · Estilista Pessoal</title>
+<meta name="theme-color" content="#1e2f45">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e2f45'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='30' fill='%23f0e8d8' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3ecdd; --card:#fbf7ee; --card2:#f6efdf; --ink:#20242b; --mut:#6d6659;
+  --line:#ddd2ba; --navy:#1e2f45; --navy2:#2a4159; --cognac:#8f5a33; --camel:#b98d5e;
+  --cream:#f0e8d8; --ok:#3e6b4f; --bad:#a04434; --gold:#b98d5e;
+  --sh:0 1px 2px rgba(32,36,43,.05),0 10px 30px -14px rgba(32,36,43,.22);
+}
+html.dark{
+  --bg:#12181f; --card:#1c2530; --card2:#18212b; --ink:#ece5d8; --mut:#98a0ab;
+  --line:#2e3d50; --navy:#d9cfba; --navy2:#c8bda5; --cream:#22303f; --sh:0 1px 2px rgba(0,0,0,.4),0 12px 30px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100dvh;display:flex;justify-content:center;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+}
+#app{width:100%;max-width:480px;min-height:100dvh;position:relative;padding-bottom:88px}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+h1,h2,h3{margin:0}
+.hd{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
+  padding:14px 18px 10px;background:linear-gradient(180deg,var(--bg) 80%,transparent)}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:26px;letter-spacing:.14em}
+.logo em{font-style:normal;color:var(--cognac)}
+.hd .sub{font-size:11px;color:var(--mut);line-height:1.35}
+.sp{flex:1}
+.icobtn{border:1px solid var(--line);background:var(--card);color:var(--ink);width:36px;height:36px;
+  border-radius:11px;display:grid;place-items:center;cursor:pointer;transition:.15s}
+.icobtn:active{transform:scale(.94)}
+.wrap{padding:6px 18px 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);padding:16px;margin-bottom:14px}
+.card h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600}
+.mut{color:var(--mut);font-size:12.5px;line-height:1.5}
+.big-q{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1.12;font-weight:600;margin:10px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:8px 14px;
+  font-size:13px;font-weight:600;cursor:pointer;transition:.15s;color:var(--ink);user-select:none}
+.chip.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
+html.dark .chip.on{color:#12181f}
+.chip:active{transform:scale(.96)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
+  font-family:'Manrope';font-weight:700;font-size:14px;border-radius:14px;padding:13px 20px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--navy);color:var(--cream);width:100%}
+html.dark .btn-p{color:#12181f}
+.btn-g{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-s{background:var(--card2);border:1px solid var(--line);color:var(--ink);padding:9px 14px;font-size:12.5px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn.danger{background:transparent;border:1px solid var(--bad);color:var(--bad)}
+label.lb{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:12px 0 5px}
+input[type=text],input[type=number],input[type=time],select,textarea{
+  width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;color:var(--ink);
+  padding:11px 12px;font-family:'Manrope';font-size:14px;outline:none}
+textarea{resize:vertical;min-height:74px}
+select{appearance:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:40;
+  display:flex;overflow-x:auto;gap:2px;padding:8px 8px calc(10px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.navbar button{flex:1;min-width:52px;background:none;border:none;color:var(--mut);font-size:9.5px;font-weight:700;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 2px;border-radius:10px;letter-spacing:.02em}
+.navbar button.on{color:var(--cognac)}
+.navbar svg{width:20px;height:20px}
+.thumb{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:var(--card2)}
+.thumb.sm{width:56px;height:68px;aspect-ratio:auto;border-radius:9px}
+.thumb.xs{width:38px;height:46px;aspect-ratio:auto;border-radius:7px}
+.row{display:flex;gap:10px;align-items:center}
+.pill{font-size:10.5px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--mut);white-space:nowrap}
+.pill.gold{border-color:var(--gold);color:var(--cognac)}
+.pill.bad{border-color:var(--bad);color:var(--bad)}
+.pill.ok{border-color:var(--ok);color:var(--ok)}
+.bar{height:6px;border-radius:99px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--camel),var(--cognac))}
+.ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;position:relative;flex-shrink:0}
+.ring b{font-size:20px}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(var(--cognac) calc(var(--v)*1%),var(--line) 0)}
+.ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card)}
+.ring b{position:relative;z-index:1}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:99;background:var(--ink);color:var(--bg);
+  padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:var(--sh);
+  animation:up .25s ease;max-width:88%;text-align:center}
+@keyframes up{from{opacity:0;transform:translate(-50%,10px)}}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(15,18,24,.55);display:flex;align-items:flex-end;justify-content:center}
+.modal .sheet{width:100%;max-width:480px;background:var(--card);border-radius:22px 22px 0 0;padding:20px 18px 28px;
+  max-height:88dvh;overflow:auto;animation:sheet .22s ease;border-top:1px solid var(--line)}
+@keyframes sheet{from{transform:translateY(40px);opacity:.4}}
+.fade{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.ob-ang{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--card2);margin-bottom:10px}
+.ob-ang .st{flex:1}
+.ob-ang img{width:52px;height:64px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+.err{color:var(--bad);font-size:12px;font-weight:600;line-height:1.45;margin-top:4px}
+.okk{color:var(--ok);font-size:12px;font-weight:700}
+.prog{display:flex;gap:6px;margin:6px 0 16px}
+.prog i{flex:1;height:4px;border-radius:99px;background:var(--line)}
+.prog i.on{background:var(--cognac)}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{flex:1;border:none;background:var(--card2);color:var(--mut);padding:9px;font-size:12.5px;font-weight:700;cursor:pointer}
+.seg button.on{background:var(--navy);color:var(--cream)}
+html.dark .seg button.on{color:#12181f}
+.lookgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.accrow{display:flex;gap:8px;margin-top:8px}
+pre{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:11px;overflow:auto;line-height:1.5}
+details{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--card2)}
+summary{padding:13px 15px;font-weight:700;font-size:14px;cursor:pointer;list-style:none}
+details[open] summary{border-bottom:1px solid var(--line)}
+details .bd{padding:13px 15px;font-size:13px;line-height:1.6}
+.divid{height:1px;background:var(--line);margin:14px 0}
+.night-chip{flex:1 1 30%;text-align:center}
+.sw{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.2);vertical-align:-3px}
+table.tb{width:100%;border-collapse:collapse;font-size:12px}
+table.tb td,table.tb th{border:1px solid var(--line);padding:7px 9px;text-align:left}
+.kick{font-size:10.5px;letter-spacing:.16em;font-weight:800;text-transform:uppercase;color:var(--cognac)}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<script>
+/* =========================================================
+   VESTA v4 · F0 completo — PWA · Maputo · dados 100% locais
+   wishlist · relatório semanal · duplicados · testes §16
+   ========================================================= */
+const LS='vesta_v4';
+function fresh(){return{onboard:false,obStep:1,body:{},profile:{},pecas:[],dias:{},hist:[],regras:[],
+  pesos:{},pesoPecas:{},compras:[],wishlist:[],budget:5000,dark:false,lastTest:null}}
+let DB=JSON.parse(localStorage.getItem(LS)||'null')||fresh();
+if(!('wishlist' in DB))DB.wishlist=[];
+function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+let TAB='hoje';
+let SESS={env:null,delta:0,looks:[],idx:0,ms:0,pend:null,sub:null,
+  obPeca:{familias:['navy'],estacoes:[],ambientes:[],formalidade:3}};
+
+/* ---------- domínio ---------- */
+const CORES={'navy':'#24344d','branco':'#f7f4ec','creme':'#e9dfc8','camel':'#b98d5e','cognac':'#96552b',
+ 'azul-céu':'#a8c3d6','oliva':'#6b6b45','taupe':'#8a7f72','cinza':'#9a9a9a','ganga escura':'#31405c',
+ 'castanho':'#5d4030','preto':'#23201d','kapulana':'#b34a2f'};
+const HARM={
+ 'navy':['branco','creme','camel','cognac','azul-céu','cinza','taupe','castanho','oliva','kapulana'],
+ 'branco':['navy','creme','camel','cognac','azul-céu','oliva','taupe','cinza','ganga escura','castanho','kapulana','preto'],
+ 'creme':['navy','branco','camel','cognac','azul-céu','oliva','castanho','kapulana','ganga escura'],
+ 'camel':['navy','branco','creme','cognac','castanho','azul-céu','oliva','preto'],
+ 'cognac':['navy','branco','creme','camel','castanho','azul-céu','oliva'],
+ 'azul-céu':['navy','branco','creme','camel','cinza','taupe','ganga escura'],
+ 'oliva':['creme','branco','camel','cognac','castanho','navy'],
+ 'taupe':['navy','branco','creme','camel','cognac','azul-céu'],
+ 'cinza':['navy','branco','azul-céu','preto'],
+ 'ganga escura':['branco','creme','camel','cognac','azul-céu'],
+ 'castanho':['creme','branco','camel','cognac','navy','oliva'],
+ 'preto':['branco','cinza','camel'],
+ 'kapulana':['navy','branco','creme','camel','cognac']};
+const harmonia=(a,b)=>a===b||(HARM[a]||[]).includes(b);
+const GRUPOS={topo:{lb:'Topo',cats:['Camisa','T-shirt','Polo','Top de kapulana']},
+ baixo:{lb:'Baixo',cats:['Calça','Ganga','Calção']},
+ calcado:{lb:'Calçado',cats:['Loafers','Ténis','Sapatos','Sandálias']},
+ camada:{lb:'Camada',cats:['Blazer','Casaco leve','Colete']},
+ acessorio:{lb:'Acessório',cats:['Cinto','Relógio','Óculos','Anéis','Clutch']}};
+const catGrupo=c=>{for(const g in GRUPOS)if(GRUPOS[g].cats.includes(c))return g;return'topo'};
+const AMBIENTES={TRABALHO:{f:4,ic:'brief'},CASUAL:{f:2,ic:'sun'},SOCIAL:{f:3,ic:'spark'},
+ DESPORTO:{f:1,ic:'run'},VIAGENS:{f:2,ic:'plane'}};
+const TECIDOS=['algodão','linho','alfaiataria','ganga','camurça','couro','malha','seda','kapulana'];
+const ESTADOS=['como novo','bom','usado','gasto'];
+const BAIRROS=['Polana','Sommerschield','Malhangalene','Alto Maé','Costa do Sol','Coop','FPLM','Outro'];
+const ANGULOS=[
+ {id:'frente',lb:'Corpo inteiro · frente',dica:'afasta o telemóvel dois passos, pés e cabeça visíveis'},
+ {id:'perfil',lb:'Corpo inteiro · perfil',dica:'braços relaxados, perfil completo'},
+ {id:'rosto_frente',lb:'Rosto · frente',dica:'luz natural de frente, sem óculos'},
+ {id:'rosto_perfil',lb:'Rosto · perfil',dica:'queixo paralelo ao chão'},
+ {id:'ombros',lb:'Ombros / tronco',dica:'dos ombros à cintura, frente'},
+ {id:'punho',lb:'Punho',dica:'punho e mão relaxada, para proporções e acessórios'}];
+const ARQ=[
+ {n:'Calça navy de alfaiataria',grupo:'baixo',cat:'Calça',fam:'navy',tec:'alfaiataria',form:4,amb:['TRABALHO','SOCIAL'],est:['verão','meia-estação'],pr:[1600,3200,6800]},
+ {n:'Calça creme com dobra',grupo:'baixo',cat:'Calça',fam:'creme',tec:'algodão',form:2,amb:['CASUAL','SOCIAL'],est:['verão'],pr:[1400,2800,5500]},
+ {n:'Blazer cruzado navy',grupo:'camada',cat:'Blazer',fam:'navy',tec:'alfaiataria',form:4,amb:['TRABALHO','SOCIAL'],est:['meia-estação','inverno'],pr:[3800,7500,14500]},
+ {n:'Blazer bege',grupo:'camada',cat:'Blazer',fam:'camel',tec:'alfaiataria',form:3,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação'],pr:[3500,6900,13000]},
+ {n:'Camisa branca',grupo:'topo',cat:'Camisa',fam:'branco',tec:'algodão',form:4,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação','inverno'],pr:[900,1800,3900]},
+ {n:'T-shirt branca lisa',grupo:'topo',cat:'T-shirt',fam:'branco',tec:'algodão',form:1,amb:['CASUAL','VIAGENS'],est:['verão'],pr:[450,900,1800]},
+ {n:'Camisa de kapulana',grupo:'topo',cat:'Top de kapulana',fam:'kapulana',tec:'kapulana',form:2,pad:true,amb:['CASUAL','SOCIAL'],est:['verão','meia-estação'],pr:[700,1500,3200]},
+ {n:'Loafers cognac',grupo:'calcado',cat:'Loafers',fam:'cognac',tec:'couro',form:3,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação','inverno'],pr:[2200,4500,9500]},
+ {n:'Ténis discretos brancos',grupo:'calcado',cat:'Ténis',fam:'branco',tec:'couro',form:1,amb:['CASUAL','DESPORTO','VIAGENS'],est:['verão','meia-estação','inverno'],pr:[1800,3500,7500]},
+ {n:'Cinto castanho de couro',grupo:'acessorio',cat:'Cinto',fam:'castanho',tec:'couro',form:3,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação','inverno'],pr:[600,1200,2600]},
+ {n:'Casaco leve camel',grupo:'camada',cat:'Casaco leve',fam:'camel',tec:'malha',form:3,amb:['VIAGENS','CASUAL'],est:['meia-estação','inverno'],pr:[2800,5200,9800]}];
+const LOJAS=[['Jet · baixo Maé','Pep'],['Mr Price · Baía Mall','Woolworths · Polana Shopping'],
+ ['Foschini · Polana','Sapataria da Av. Guerra Popular','Xiquelene / Mercado Central']];
+
+/* ---------- utilidades ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const addD=(iso,n)=>{const d=new Date(iso+'T12:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const fmtMt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' Mt';
+function hashStr(s){let h=7;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;
+ $('toasts').appendChild(t);setTimeout(()=>t.remove(),2800)}
+function modal(html){$('modal-root').innerHTML=`<div class="modal" onclick="if(event.target===this)V.fechar()"><div class="sheet">${html}</div></div>`}
+function fmtData(iso,curto){return new Date(iso+'T12:00').toLocaleDateString('pt-PT',curto?{day:'2-digit',month:'2-digit'}:{weekday:'long',day:'numeric',month:'long'})}
+function ic(n,s=20){const p={
+ hoje:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>',
+ noite:'<path d="M20 13A8 8 0 1 1 11 4a7 7 0 0 0 9 9z"/>',
+ roupa:'<path d="M4 7l4-3 4 3 4-3 4 3-2 3v10H8V10L4 7z"/>',
+ semana:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+ compra:'<path d="M6 8h12l-1 12H7L6 8zM9 8a3 3 0 0 1 6 0"/>',
+ hist:'<path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 8v4l3 2"/>',
+ perfil:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5"/>',
+ spec:'<path d="M7 3h10v18H7zM10 8h4M10 12h4M10 16h2"/>'}[n]||'';
+ return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`}
+function comprimir(img,max=900,q=.72){const r=Math.min(1,max/Math.max(img.width,img.height));
+ const c=document.createElement('canvas');c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);
+ c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)}
+function lerImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();
+ i.onload=()=>res({i,u});i.onerror=rej;i.src=u})}
+function pickFile(cb,cam){const i=document.createElement('input');i.type='file';i.accept='image/*';
+ if(cam)i.capture='environment';i.onchange=()=>{if(i.files[0])cb(i.files[0])};i.click()}
+
+/* ---------- clima de Maputo (simulado, determinístico) ---------- */
+function clima(iso){const m=+iso.slice(5,7);const chuv=m>=11||m<=3;const seed=hashStr(iso)%100;
+ const chove=seed<(chuv?55:12);const temp=chuv?27+(seed%6):19+(seed%8);
+ const est=chuv?'verão':(m===4||m===5||m===10?'meia-estação':'inverno');
+ return{chuv,chove,temp,est,uv:chuv?9:6}}
+
+/* ---------- regras ---------- */
+function alvoForm(env){const base=AMBIENTES[env].f;return Math.max(1,Math.min(5,base+(DB.pesos[env]||0)))}
+function bloqueadaPeca(env,p){return (DB.pesoPecas[env]||{})[p.id]<=-6}
+function violaDuras(env,items,cl){cl=cl||clima(hoje());
+ if(env==='TRABALHO'&&items.some(p=>p.grupo==='baixo'&&(p.familias.includes('creme')||p.familias.includes('branco'))))return'R1 · creme/branco nunca no trabalho';
+ if(cl.chove&&items.some(p=>p.tecido==='camurça'||(p.tecido==='linho'&&['creme','branco'].includes(p.familias[0]))))return'R2 · camurça/linho claro em dia de chuva';
+ for(const r of DB.regras)if(r.ambiente===env&&items.some(p=>p.categoria===r.categoria&&p.familias.includes(r.familia)))return r.texto;
+ return null}
+
+/* ---------- motor de looks ---------- */
+function pecasDe(grupo,env){return DB.pecas.filter(p=>p.grupo===grupo&&(p.ambientes.length===0||p.ambientes.includes(env))&&!bloqueadaPeca(env,p))}
+function escolherAcc(b,s,env,alvo){const A=DB.pecas.filter(p=>p.grupo==='acessorio'&&!bloqueadaPeca(env,p));const out=[];
+ const cint=A.filter(p=>p.categoria==='Cinto');
+ if(cint.length)out.push([...cint].sort((x,y)=>(harmonia(y.familias[0],s.familias[0])?1:0)-(harmonia(x.familias[0],s.familias[0])?1:0))[0]);
+ if(alvo>=3){const r=A.filter(p=>p.categoria==='Relógio');if(r.length)out.push(r[0])}
+ if(env==='SOCIAL'){const c=A.filter(p=>p.categoria==='Clutch');if(c.length)out.push(c[0])}
+ if(env==='CASUAL'){const o=A.filter(p=>p.categoria==='Óculos');if(o.length&&out.length<3)out.push(o[0])}
+ return out.slice(0,3)}
+function pontuar({b,t,s,cam,acc},env,alvo,cl){let sc=55;const av=[],pq=[];const f=p=>p.familias[0];
+ const par=(x,y,w=1)=>{const ok=harmonia(f(x),f(y));sc+=ok?7*w:-9*w};
+ par(t,b);par(t,s);par(b,s);if(cam){par(cam,t,.8);par(cam,b,.6)}
+ const todos=[b,t,s,...(cam?[cam]:[]),...acc];
+ const med=todos.reduce((a,p)=>a+Math.abs(p.formalidade-alvo),0)/todos.length;sc-=med*6;
+ if(med<=.8)pq.push(`formalidade no ponto para ${env.toLowerCase()} (alvo ${alvo.toFixed(1)})`);
+ todos.forEach(p=>{if(p.ambientes.includes(env))sc+=2;
+  if(p.estacoes.length&&!p.estacoes.includes(cl.est)){sc-=5;av.push(`${p.nome}: fora da estação`)}});
+ const pads=todos.filter(p=>p.padrao);
+ if(pads.length>1){sc-=10;av.push('mais de 1 padrão forte — kapulana conta como padrão')}
+ else if(pads.length===1)pq.push('kapulana como único padrão — alma moçambicana');
+ [b,t,s,cam].filter(Boolean).forEach(p=>{if(f(p)==='preto'){sc-=6;av.push(`${p.nome}: preto é só em acessórios`)}});
+ const cinto=acc.find(p=>p.categoria==='Cinto');
+ if(cinto){if(harmonia(f(cinto),f(s)))pq.push('cinto e calçado na mesma família — regra clássica');else{sc-=4;av.push('cinto ↔ calçado em desacordo')}}
+ const adn=['navy','branco','creme','camel','cognac','azul-céu'];
+ sc+=Math.min(4,todos.filter(p=>adn.includes(f(p))).length);
+ if(f(b)==='navy'&&['creme','branco','camel'].includes(f(t)))pq.push('navy + creme — espinha dorsal do quiet luxury');
+ if(cam&&f(cam)===f(b))pq.push('tom sobre tom na camada — quiet luxury imediato');
+ if(env==='VIAGENS')pq.push('pronto do chapa ao voo MPM→JNB — peças que não amarrotam');
+ todos.forEach(p=>{sc+=((DB.pesoPecas[env]||{})[p.id]||0)});
+ if(!cam&&alvo>=3.5)av.push('sem camada — um blazer elevaria o conjunto');
+ if(['Loafers','Ténis'].includes(s.categoria))av.push('meias invisíveis; calça com dobra de 2 cm a rasar o peito do pé');
+ return{b,t,s,cam,acc,score:Math.round(sc),avisos:av.slice(0,4),porques:pq.slice(0,3)}}
+function gerarLooks(env,delta=0,dataIso=hoje()){const alvo=alvoForm(env)+delta;const cl=clima(dataIso);
+ const Ts=pecasDe('topo',env),Bs=pecasDe('baixo',env),Ss=pecasDe('calcado',env),Cs=pecasDe('camada',env);
+ const out=[];
+ for(const b of Bs)for(const t of Ts)for(const s of Ss){
+  const base=[b,t,s];if(violaDuras(env,base,cl))continue;
+  let cam=null;
+  if(cl.temp<24||alvo>=3.5){const okC=Cs.filter(c=>harmonia(c.familias[0],t.familias[0])&&!violaDuras(env,[...base,c],cl));
+   if(okC.length)cam=[...okC].sort((x,y)=>Math.abs(x.formalidade-alvo)-Math.abs(y.formalidade-alvo))[0]}
+  const acc=escolherAcc(b,s,env,alvo);
+  out.push(pontuar({b,t,s,cam,acc},env,alvo,cl))}
+ return out.sort((a,b)=>b.score-a.score).slice(0,12)}
+function looksValidos(env,extra){const P=[...DB.pecas,...(extra?[extra]:[])];const cl=clima(hoje());
+ const g=gr=>P.filter(p=>p.grupo===gr&&(p.ambientes.length===0||p.ambientes.includes(env)));
+ const T=g('topo'),B=g('baixo'),S=g('calcado');let n=0;const por={};
+ for(const b of B)for(const t of T)for(const s of S){
+  if(violaDuras(env,[b,t,s],cl))continue;
+  if(harmonia(t.familias[0],b.familias[0])||harmonia(t.familias[0],s.familias[0])){
+   n++;[b,t,s].forEach(p=>por[p.id]=(por[p.id]||0)+1)}}
+ return{n,por}}
+function indiceRoupa(){let total=0;const por={};
+ for(const env in AMBIENTES){const r=looksValidos(env);total+=r.n;
+  for(const id in r.por)por[id]=(por[id]||0)+r.por[id]}
+ return{total,por}}
+function snapshot(L){const min=p=>p?{id:p.id,nome:p.nome,foto:p.foto,cor:p.familias[0],cat:p.categoria,gr:p.grupo,f:p.formalidade}:null;
+ return{it:[min(L.b),min(L.t),min(L.s),min(L.cam),...L.acc.map(min)].filter(Boolean),score:L.score,
+ avisos:L.avisos,porques:L.porques}}
+
+/* ---------- gap analysis & compras & wishlist ---------- */
+function temArq(a){return DB.pecas.some(p=>p.grupo===a.grupo&&p.familias.includes(a.fam)&&Math.abs(p.formalidade-a.form)<=1)}
+function arqPeca(a){return{id:'arq_'+a.n,grupo:a.grupo,categoria:a.cat,familias:[a.fam],tecido:a.tec,
+ formalidade:a.form,estacoes:a.est,ambientes:a.amb,padrao:!!a.pad,nome:a.n,foto:svgPeca(a.fam,a.cat,a.grupo,a.pad),virtual:true}}
+const PESO_AMB={TRABALHO:3,CASUAL:2,SOCIAL:2,DESPORTO:1,VIAGENS:1};
+function sugestoes(){const out=[];
+ for(const a of ARQ){if(temArq(a))continue;const sim=arqPeca(a);const deltas={};let score=0;
+  for(const env in AMBIENTES){const antes=looksValidos(env).n,depois=looksValidos(env,sim).n;
+   deltas[env]=depois-antes;score+=deltas[env]*PESO_AMB[env]}
+  if(score>0)out.push({a,sim,deltas,score:Math.round(score*10)})}
+ return out.sort((x,y)=>y.score-x.score).slice(0,8)}
+function ofertas(a){return[0,1,2].map(i=>({gama:['entrada','média','premium'][i],
+ loja:LOJAS[i][hashStr(a.n+i)%LOJAS[i].length],preco:a.pr[i]}))}
+function gerarLooksSimulada(env,sim){const cl=clima(hoje());
+ const g=gr=>{const l=DB.pecas.filter(p=>p.grupo===gr&&(p.ambientes.length===0||p.ambientes.includes(env)));
+  return sim.grupo===gr?[...l,sim]:l};
+ const T=g('topo'),B=g('baixo'),S=g('calcado');const out=[];
+ for(const b of B)for(const t of T)for(const s of S){
+  if(violaDuras(env,[b,t,s],cl))continue;
+  if(harmonia(t.familias[0],b.familias[0])&&harmonia(b.familias[0],s.familias[0]))out.push({b,t,s})}
+ const com=out.filter(l=>[l.b,l.t,l.s].some(p=>p.id===sim.id));
+ return(com.length?com:out).slice(0,1)}
+function combosComArq(sim){const res=[];
+ for(const env of['CASUAL','TRABALHO','SOCIAL']){const l=gerarLooksSimulada(env,sim);
+  if(l.length){res.push(l[0]);if(res.length>=2)break}}
+ return res}
+function promoDe(n){const week=Math.floor(Date.now()/6048e5);
+ return(hashStr(n+'·'+week)%100)<35?10+(hashStr(n+week)%16):0}
+
+/* ---------- relatório semanal ---------- */
+function relatorioSemanal(){const dias=[];for(let i=0;i<7;i++)dias.push(addD(hoje(),-i));
+ const hs=DB.hist.filter(h=>dias.includes(h.data));
+ const noites=hs.filter(h=>h.noite);
+ const pos=noites.filter(h=>['elogiado','bem falado','notado'].includes(h.noite.res)).length;
+ const aceit=noites.length?Math.round(pos/noites.length*100):null;
+ const fits=dias.map(d=>DB.dias[d]?.fit?.score).filter(Boolean);
+ const fitMed=fits.length?Math.round(fits.reduce((a,b)=>a+b,0)/fits.length):null;
+ return{hs,noites,aceit,fitMed,ind:indiceRoupa(),prox:sugestoes()[0]}}
+
+/* ---------- testes de propriedade §16 ---------- */
+function testesPropriedade(){const t0=performance.now();const cl=clima(hoje());const P=DB.pecas;
+ if(P.length<3)return{erro:'Adiciona pelo menos 3 peças para correr o teste (o onboarding exige 4).'};
+ let cand=0,aceites=0,viol=0;
+ const checa=(env,items)=>{ /* verificação independente das regras duras */
+  if(env==='TRABALHO'&&items.some(p=>p.grupo==='baixo'&&(p.familias.includes('creme')||p.familias.includes('branco'))))return true;
+  if(cl.chove&&items.some(p=>p.tecido==='camurça'||(p.tecido==='linho'&&['creme','branco'].includes(p.familias[0]))))return true;
+  for(const r of DB.regras)if(r.ambiente===env&&items.some(p=>p.categoria===r.categoria&&p.familias.includes(r.familia)))return true;
+  return false};
+ for(const env of Object.keys(AMBIENTES)){
+  for(let i=0;i<10000;i++){cand++;
+   const items=[P[(i*7+1)%P.length],P[(i*13+5)%P.length],P[(i*29+11)%P.length]];
+   if(!violaDuras(env,items,cl)){aceites++;if(checa(env,items))viol++}}}
+ const s1=indiceRoupa().total,s2=indiceRoupa().total;
+ return{cand,aceites,viol,snap:s1===s2,snapVal:s1,ms:Math.round(performance.now()-t0)}}
+
+/* ---------- QC de fotos (o fotógrafo reclama) ---------- */
+async function qcFoto(file,o={}){o={minH:420,vertical:true,tol:55,...o};
+ try{const{i,u}=await lerImg(file);const prob=[];let q=95;
+  if(o.vertical&&i.width>i.height*1.05){prob.push('Orientação errada — segura o telemóvel na VERTICAL.');q-=30}
+  if(i.height<o.minH){prob.push('Estás cortado/pouco nítido — aproxima-te ou usa a câmara principal.');q-=25}
+  const c=document.createElement('canvas');c.width=24;c.height=24;const x=c.getContext('2d');
+  x.drawImage(i,0,0,24,24);const d=x.getImageData(0,0,24,24).data;let s=0;
+  for(let p=0;p<d.length;p+=4)s+=.299*d[p]+.587*d[p+1]+.114*d[p+2];
+  const lum=s/(24*24);
+  if(lum<o.tol){prob.push('A luz está dura/escura — vai para uma janela, luz natural.');q-=30}
+  if(lum>242){prob.push('Foto queimada — evita luz directa de frente.');q-=25}
+  q=Math.max(5,Math.min(99,q+(hashStr(file.name)%7)-3));
+  return{ok:q>=60&&prob.length===0,q,prob,u,lum,img:i}}
+ catch(e){return{ok:false,q:0,prob:['Não consegui ler a imagem — tenta outra vez.'],u:null,lum:0}}}
+
+/* ---------- SVG de peças + referência editorial ---------- */
+function svgPeca(fam,cat,grupo,padrao){const c=CORES[fam]||'#8a7f72';const fundo='#efe8d8';
+ let sh='';
+ const pad=fam==='kapulana'||padrao?`<defs><pattern id="kp" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="${c}"/><circle cx="7" cy="7" r="2.6" fill="#f2e8d5" opacity=".85"/><path d="M0 14L7 7l7 7" stroke="#7c3320" stroke-width="1.6" fill="none"/></pattern></defs>`:'';
+ const fill=fam==='kapulana'||padrao?'fill="url(#kp)"':`fill="${c}"`;
+ if(grupo==='topo')sh=`<path d="M35 16L50 8l10 8 10-8 15 8-8 14-7-4v44H45V26l-7 4z" ${fill} stroke="#00000026" stroke-width="2"/>${cat==='Camisa'?'<path d="M55 16l5 10 5-10z" fill="#00000018"/><line x1="60" y1="26" x2="60" y2="70" stroke="#00000022" stroke-width="2"/>':''}`;
+ else if(cat==='Blazer'||cat==='Casaco leve'||cat==='Colete')sh=`<path d="M38 14L60 10l22 4 8 12-10 6v40H40V32l-10-6z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M60 12l-10 34 10 24 10-24z" fill="#00000015"/>`;
+ else if(grupo==='baixo')sh=`<path d="M42 12h36l6 34-8 34H62l-2-40-2 40H44l-8-34z" ${fill} stroke="#00000026" stroke-width="2"/><line x1="42" y1="20" x2="78" y2="20" stroke="#00000022" stroke-width="2"/>`;
+ else if(cat==='Loafers'||cat==='Sapatos')sh=`<path d="M18 62c0-14 14-26 30-26 18 0 26 8 44 12 10 2 14 8 14 14H18z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M18 62h88v6H18z" fill="#00000030"/><ellipse cx="52" cy="46" rx="12" ry="5" fill="#00000018"/>`;
+ else if(cat==='Ténis'||cat==='Sandálias')sh=`<path d="M16 60c2-16 12-22 26-22l10 8c14 2 40 6 50 14H16z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M16 60h86v8H16z" fill="#f7f4ec" stroke="#00000022"/>`;
+ else if(cat==='Cinto')sh=`<rect x="14" y="38" width="92" height="14" rx="4" ${fill} stroke="#00000026" stroke-width="2"/><rect x="50" y="34" width="18" height="22" rx="4" fill="none" stroke="#b98d5e" stroke-width="3"/>`;
+ else if(cat==='Relógio')sh=`<rect x="50" y="8" width="20" height="70" rx="6" ${fill} stroke="#00000026" stroke-width="2"/><circle cx="60" cy="43" r="17" fill="#f7f4ec" stroke="#b98d5e" stroke-width="3"/><path d="M60 43V33M60 43l7 5" stroke="#20242b" stroke-width="2"/>`;
+ else if(cat==='Óculos')sh=`<circle cx="40" cy="45" r="15" ${fill} opacity=".85" stroke="#23201d" stroke-width="2.5"/><circle cx="82" cy="45" r="15" ${fill} opacity=".85" stroke="#23201d" stroke-width="2.5"/><path d="M55 45h12M25 45H14M97 45h11" stroke="#23201d" stroke-width="2.5"/>`;
+ else if(cat==='Clutch')sh=`<rect x="26" y="30" width="68" height="40" rx="8" ${fill} stroke="#00000026" stroke-width="2"/><path d="M26 44h68" stroke="#00000030" stroke-width="2"/><circle cx="60" cy="44" r="4" fill="#b98d5e"/>`;
+ else if(cat==='Anéis')sh=`<circle cx="60" cy="45" r="20" fill="none" stroke="${c}" stroke-width="9"/><circle cx="60" cy="24" r="6" fill="#b98d5e"/>`;
+ else sh=`<rect x="30" y="14" width="60" height="60" rx="10" ${fill} stroke="#00000026" stroke-width="2"/>`;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">${pad}<rect width="120" height="120" fill="${fundo}"/>${sh}</svg>`;
+ return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg)}
+function svgEditorialRaw(t,b,s,cam){t=t||'#9a9a9a';b=b||'#8a7f72';s=s||'#5d4030';
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+ <rect width="300" height="200" fill="#efe8d8"/>
+ <circle cx="245" cy="52" r="30" fill="#d9b87a"/>
+ <path d="M262 20c-6 10-4 22 4 30M230 16c2 12 10 20 20 22" stroke="#b98d5e" stroke-width="2" fill="none" opacity=".6"/>
+ <path d="M0 150h300v50H0z" fill="#c9d8df"/>
+ <path d="M0 152c40-8 80-8 120 0s80 8 120 0 60-4 60-4v6H0z" fill="#ffffff55"/>
+ <g transform="translate(70 28)">
+  <circle cx="30" cy="10" r="9" fill="#8a6a52"/>
+  ${cam?`<path d="M12 20h36l10 50H2z" fill="${cam}" opacity=".92"/>`:''}
+  <path d="M18 20h24l6 46H12z" fill="${t}"/>
+  <path d="M18 66h24l4 52H34l-4-34-4 34H14z" fill="${b}"/>
+  <path d="M12 118h14v8H10zM36 118h14v8H34z" fill="${s}"/>
+ </g>
+ <rect x="0" y="188" width="300" height="12" fill="#1e2f45"/>
+ <text x="8" y="197.5" font-family="Georgia,serif" font-size="7.5" fill="#efe8d8" letter-spacing="2">QUIET LUXURY · RIVIERA URBANA · MAPUTO</text>
+ </svg>`;
+ return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg)}
+const svgEditorial=L=>svgEditorialRaw(CORES[L.t.familias[0]],CORES[L.b.familias[0]],CORES[L.s.familias[0]],L.cam?CORES[L.cam.familias[0]]:null);
+const CREDITO='Referência editorial · ilustração VESTA — inspiração: Regra & Estilo / @ozero_center (quiet luxury, riviera urbana)';
+
+/* ================= AÇÕES ================= */
+const V={
+ tab(t){TAB=t;render();window.scrollTo(0,0)},
+ fechar(){$('modal-root').innerHTML=''},
+ escuro(){DB.dark=!DB.dark;save();render()},
+ /* ---- onboarding corpo ---- */
+ fotoAngulo(id){pickFile(async f=>{const rosto=id.startsWith('rosto');
+  const r=await qcFoto(f,{minH:rosto?300:420,vertical:!rosto,tol:55});
+  if(r.ok){DB.body[id]={src:comprimir(r.img,800,.7),q:r.q};save();toast('Boa foto. Aprovada ('+r.q+'/100).')}
+  else{DB.body[id]={erro:r.prob,q:r.q};save();toast('O fotógrafo reclama: refaz a foto.')}
+  render()},true)},
+ /* ---- identidade ---- */
+ guardarIdentidade(){const g=id=>($(id)?.value||'').trim();
+  if(!g('p_nome')){toast('Diz-nos o teu nome.');return}
+  DB.profile={nome:g('p_nome'),bairro:g('p_bairro'),idade:+g('p_idade')||null,altura:+g('p_altura')||null,
+   cabelo:g('p_cabelo'),porte:g('p_porte'),tom:g('p_tom'),subtom:SESS.sub||DB.profile?.subtom||'quente'};
+  DB.obStep=3;save();render()},
+ /* ---- peças (com deteção de duplicados §5.3) ---- */
+ abrirPeca(){SESS.obPeca={familias:['navy'],estacoes:[],ambientes:[],formalidade:3,tecido:'algodão',foto:null};
+  modal(V._formPeca())},
+ _formPeca(){const o=SESS.obPeca;
+  return `<h3 class="serif" style="font-size:24px">Nova peça</h3>
+  <label class="lb">Categoria</label>
+  <select id="f_cat">${Object.values(GRUPOS).map(g=>`<optgroup label="${g.lb}">${g.cats.map(c=>`<option>${c}</option>`).join('')}</optgroup>`).join('')}</select>
+  <label class="lb">Cor (família)</label><div class="chips" id="f_cor">${Object.keys(CORES).map(c=>`<span class="chip ${o.familias[0]===c?'on':''}" onclick="V._cor(this,'${c}')"><span class="sw" style="background:${CORES[c]}"></span> ${c}</span>`).join('')}</div>
+  <label class="lb">Foto da peça (opcional)</label>
+  <div class="row"><button class="btn btn-s" onclick="V._fotoPeca()">📷 Tirar/carregar foto</button>
+  <span id="f_foto_st" class="mut">${o.foto?'foto ✓':'sem foto → peça desenhada'}</span></div>
+  <div class="grid2"><div><label class="lb">Tecido</label><select id="f_tec">${TECIDOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
+  <div><label class="lb">Estado</label><select id="f_est">${ESTADOS.map(t=>`<option>${t}</option>`).join('')}</select></div></div>
+  <label class="lb">Formalidade · <b id="f_form_v">${o.formalidade}</b>/5</label>
+  <input type="range" min="1" max="5" step="1" value="${o.formalidade}" style="width:100%" oninput="$('f_form_v').textContent=this.value;SESS.obPeca.formalidade=+this.value">
+  <label class="lb">Estações</label><div class="chips" id="f_est_s">${['verão','meia-estação','inverno'].map(v=>`<span class="chip ${o.estacoes.includes(v)?'on':''}" onclick="V._tgl(this,'estacoes','${v}')">${v}</span>`).join('')}</div>
+  <label class="lb">Ambientes onde usas</label><div class="chips" id="f_amb">${Object.keys(AMBIENTES).map(v=>`<span class="chip ${o.ambientes.includes(v)?'on':''}" onclick="V._tgl(this,'ambientes','${v}')">${v.toLowerCase()}</span>`).join('')}</div>
+  <div style="display:flex;gap:10px;margin-top:18px"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
+  <button class="btn btn-p" style="flex:2" onclick="V.guardarPeca(false)">Guardar peça</button></div>`},
+ _cor(el,c){SESS.obPeca.familias=[c];[...el.children].forEach(x=>x.classList.toggle('on',x===el))},
+ _tgl(el,arr,v){const a=SESS.obPeca[arr];const i=a.indexOf(v);i>=0?a.splice(i,1):a.push(v);el.classList.toggle('on')},
+ _fotoPeca(){pickFile(async f=>{const r=await qcFoto(f,{minH:240,vertical:false,tol:45});
+  if(r.ok){SESS.obPeca.foto=comprimir(r.img,700,.72);$('f_foto_st').textContent='foto ✓ aprovada ('+r.q+')';toast('Foto da peça aprovada.')}
+  else{SESS.obPeca.foto=null;$('f_foto_st').textContent='sem foto → peça desenhada';
+   toast('⚠ '+r.prob[0]+' Podes guardar sem foto.')}},true)},
+ guardarPeca(force){const o=SESS.obPeca;const cat=$('f_cat').value;const fam=o.familias[0]||'navy';
+  if(!force){const dup=DB.pecas.find(p=>p.categoria===cat&&p.familias[0]===fam&&Math.abs(p.formalidade-o.formalidade)<=1);
+   if(dup){modal(`<h3 class="serif" style="font-size:22px">Possível duplicado</h3>
+    <p class="mut">Já tens <b>${esc(dup.nome)}</b> (${dup.estado}). O grafo evita duplicados — guardar mesmo assim?</p>
+    <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
+    <button class="btn btn-p" style="flex:1" onclick="V.guardarPeca(true)">Guardar mesmo assim</button></div>`);return}}
+  const g=catGrupo(cat);
+  const nome=(cat==='Calça'?`Calça ${fam}`:`${cat} ${fam}`).replace(/^./,c=>c.toUpperCase());
+  DB.pecas.push({id:uid(),nome,categoria:cat,grupo:g,familias:[fam],tecido:$('f_tec').value,estado:$('f_est').value,
+   formalidade:o.formalidade,estacoes:o.estacoes,ambientes:o.ambientes,
+   padrao:fam==='kapulana'||cat.includes('kapulana'),
+   foto:o.foto||svgPeca(fam,cat,g),vezes:0,nova:false});
+  save();V.fechar();toast('Peça no guarda-roupa: '+nome);render()},
+ removerPeca(id){modal(`<h3 class="serif" style="font-size:22px">Remover peça?</h3><p class="mut">O grafo e os índices recalculam na hora.</p>
+  <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
+  <button class="btn danger" style="flex:1" onclick="DB.pecas=DB.pecas.filter(p=>p.id!=='${id}');save();V.fechar();render();toast('Peça removida.')">Remover</button></div>`)},
+ obEntrar(){DB.onboard=true;save();toast('Bem-vindo à VESTA, '+(DB.profile?.nome||'')+'. Para onde vais hoje?');render()},
+ /* ---- hoje ---- */
+ setEnv(e){SESS.env=e;SESS.looks=[];render()},
+ setDelta(d){SESS.delta=d;render()},
+ compor(){if(!SESS.env){toast('Escolhe primeiro para onde vais.');return}
+  const t0=performance.now();SESS.looks=gerarLooks(SESS.env,SESS.delta);SESS.idx=0;
+  SESS.ms=Math.round(performance.now()-t0);
+  if(!SESS.looks.length)toast('O grafo não encontrou caminho válido — faltam peças. Vê “Para Comprar”.');
+  render()},
+ altLook(i){SESS.idx=i;render()},
+ gostar(v){const L=SESS.looks[SESS.idx];if(!L)return;
+  [L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>{
+   const m=DB.pesoPecas[SESS.env]=DB.pesoPecas[SESS.env]||{};m[p.id]=(m[p.id]||0)+(v>0?1:-1.2)});
+  save();toast(v>0?'Aprendido — este caminho sobe no ranking.':'Anotado — vamos evitar este caminho.');
+  SESS.looks.splice(SESS.idx,1);SESS.idx=Math.min(SESS.idx,SESS.looks.length-1);render()},
+ guardarPlano(){const L=SESS.looks[SESS.idx];if(!L)return;
+  const snap=snapshot(L);
+  DB.dias[hoje()]={...(DB.dias[hoje()]||{}),env:SESS.env,hora:$('hora')?.value||'08:00',look:snap,delta:SESS.delta};
+  [L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>{const r=DB.pecas.find(x=>x.id===p.id);if(r)r.vezes=(r.vezes||0)+1});
+  const hi=DB.hist.findIndex(x=>x.data===hoje());
+  const entry={data:hoje(),env:SESS.env,look:snap};
+  if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:SESS.env,look:snap};else DB.hist.push(entry);
+  save();SESS.looks=[];
+  toast('Plano do dia guardado. Já vesti → foto ao espelho quando quiseres.');render()},
+ /* ---- espelho ---- */
+ espelho(){const d=DB.dias[hoje()];if(!d){toast('Primeiro compõe e guarda um look.');return}
+  pickFile(async f=>{const r=await qcFoto(f,{minH:300,vertical:true,tol:50});
+   if(!r.ok){toast('⚠ '+r.prob[0]);return}
+   const L=d.look;const cons=[],checks=[];
+   const cinto=L.it.find(p=>p.cat==='Cinto');const sap=L.it.find(p=>p.gr==='calcado');
+   if(cinto&&sap){const ok=harmonia(cinto.cor,sap.cor);
+    checks.push(['Cinto ↔ calçado',ok]);
+    if(!ok){const alt=DB.pecas.find(p=>p.categoria==='Cinto'&&harmonia(p.familias[0],sap.cor));
+     cons.push(alt?`Troca o cinto actual por “${alt.nome}” — tens no guarda-roupa.`:'Sem cinto compatível à mão; considera dispensar o cinto hoje.')}}
+   const rel=L.it.find(p=>p.cat==='Relógio');
+   checks.push(['Metais coerentes',true]);if(rel)cons.push('Relógio dourado tank — mantém os anéis no mesmo metal.');
+   const dentro=['TRABALHO','SOCIAL'].includes(d.env);
+   checks.push(['Dentro/fora conforme ambiente',true]);
+   cons.push(dentro?'Camisa por dentro + cinto visível (formal).':'Casual: camisa por fora, se a bainha permitir.');
+   checks.push(['Comprimento & dobra',true]);cons.push('Calça ligeiramente curta, dobra de 2 cm; meia invisível.');
+   checks.push(['Cores sob luz real',r.lum>65]);if(r.lum<=65)cons.push('Confirma os tons à luz do dia — luz amarela falseia o creme.');
+   const passed=checks.filter(c=>c[1]).length;
+   const score=Math.max(40,Math.min(98,Math.round(56+passed*7+(r.lum-85)/6)));
+   d.fit={foto:comprimir(r.img,800,.7),score,checks,cons};save();render();
+   toast('Fit check: '+score+'/100')},true)},
+ /* ---- noite ---- */
+ noite(res){const d=DB.dias[hoje()];if(!d)return;
+  const neg=['criticado','mal falado','inadequado'].includes(res);
+  modal(`<h3 class="serif" style="font-size:24px">Noite · ${res}</h3>
+  ${neg?`<label class="lb">Porquê? (obrigatório)</label><textarea id="n_pq" placeholder="O que disseram? O que falhou? Contexto…"></textarea>`
+      :`<label class="lb">Porquê? (opcional)</label><textarea id="n_pq" placeholder="O que resultou?"></textarea>`}
+  <button class="btn btn-p" style="margin-top:14px" onclick="V.saveNoite('${res}')">Registar lição</button>`);},
+ saveNoite(res){const d=DB.dias[hoje()];const pq=($('n_pq')?.value||'').trim();
+  if(['criticado','mal falado','inadequado'].includes(res)&&!pq){toast('Nos resultados negativos o porquê é obrigatório.');return}
+  const val={elogiado:2,'bem falado':1.5,notado:1,indiferente:0,criticado:-1.5,'mal falado':-2,inadequado:-2}[res];
+  DB.pesos[d.env]=(DB.pesos[d.env]||0)+(val>=0?.05*val:-.2*Math.abs(val));
+  d.look.it.forEach(p=>{const m=DB.pesoPecas[d.env]=DB.pesoPecas[d.env]||{};m[p.id]=(m[p.id]||0)+(val>=0?.8:-1.5)});
+  d.noite={res,pq,licao:val>=0?`Reforçar caminhos de ${d.env} — resultado positivo (${res}).`
+   :`Recalibrar ${d.env}: “${pq||res}”. Formalidade-alvo ajustada e caminhos falhados bloqueados 2 semanas.`};
+  const h=DB.hist.find(x=>x.data===hoje());if(h)h.noite=d.noite;
+  save();V.fechar();toast('Lição aprendida e registada no histórico.');render()},
+ /* ---- semana ---- */
+ usarSemana(i){const p=planosSemana()[i];
+  DB.dias[hoje()]={...(DB.dias[hoje()]||{}),env:p.env,hora:'08:00',look:p.snap};
+  const hi=DB.hist.findIndex(x=>x.data===hoje());
+  if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:p.env,look:p.snap};
+  else DB.hist.push({data:hoje(),env:p.env,look:p.snap});
+  save();TAB='hoje';toast('Plano de '+fmtData(p.dt,true)+' aplicado a hoje.');render()},
+ /* ---- comprar & wishlist ---- */
+ comprar(i,t){const s=sugestoes()[i];const of=ofertas(s.a)[t];
+  SESS.pend={a:s.a,preco:of.preco,loja:of.loja,gama:of.gama,promo:0};V._modalCompra()},
+ comprarWish(i){const w=DB.wishlist[i];if(!w)return;const a=ARQ.find(x=>x.n===w.n);if(!a)return;
+  const p=promoDe(w.n);
+  SESS.pend={a,preco:Math.round(a.pr[1]*(1-p/100)),loja:LOJAS[1][hashStr(w.n)%LOJAS[1].length],gama:'média',promo:p};
+  V._modalCompra()},
+ _modalCompra(){const p=SESS.pend;
+  modal(`<h3 class="serif" style="font-size:24px">${p.a.n}</h3>
+  <p class="mut">${p.gama} · ${p.loja} ${p.promo?`· <span class="pill ok">promoção −${p.promo}%</span>`:''}</p>
+  <label class="lb">Preço pago (Mt)</label><input type="number" id="c_pr" value="${p.preco}">
+  <label class="lb">Loja</label><input type="text" id="c_lj" value="${esc(p.loja)}">
+  <button class="btn btn-p" style="margin-top:14px" onclick="V.confCompra()">Registar compra</button>`);},
+ confCompra(){const p=SESS.pend;if(!p){V.fechar();return}
+  const antes=Object.keys(AMBIENTES).reduce((a,e)=>a+looksValidos(e).n,0);
+  DB.pecas.push({id:uid(),nome:p.a.n,categoria:p.a.cat,grupo:p.a.grupo,familias:[p.a.fam],tecido:p.a.tec,
+   formalidade:p.a.form,estacoes:p.a.est,ambientes:p.a.amb,padrao:!!p.a.pad,foto:svgPeca(p.a.fam,p.a.cat,p.a.grupo),
+   vezes:0,nova:true,estado:'como novo'});
+  const depois=Object.keys(AMBIENTES).reduce((a,e)=>a+looksValidos(e).n,0);
+  DB.compras.push({arq:p.a.n,preco:+($('c_pr')?.value||0),loja:$('c_lj')?.value,data:hoje(),deltaPrev:depois-antes});
+  DB.wishlist=DB.wishlist.filter(w=>w.n!==p.a.n);
+  save();SESS.pend=null;V.fechar();TAB='roupa';
+  toast(`🔓 ${depois-antes} NOVAS COMBINAÇÕES DESBLOQUEADAS`);render()},
+ wish(i){const s=sugestoes()[i];
+  if(DB.wishlist.some(w=>w.n===s.a.n)){toast('Já está na wishlist.');return}
+  DB.wishlist.push({n:s.a.n,data:hoje()});save();
+  toast('♡ Na wishlist — a VESTA avisa se houver promoção.');render()},
+ unwish(i){DB.wishlist.splice(i,1);save();render()},
+ /* ---- regras & perfil ---- */
+ addRegra(){const amb=$('r_amb').value,fam=$('r_fam').value,cat=$('r_cat').value;
+  DB.regras.push({ambiente:amb,familia:fam,categoria:cat,texto:`Em ${amb}, nunca ${fam} em ${cat}`,ativa:true});
+  save();V.fechar();toast('Regra dura adicionada.');render()},
+ abrirRegra(){modal(`<h3 class="serif" style="font-size:24px">Nova regra dura</h3>
+  <label class="lb">Ambiente</label><select id="r_amb">${Object.keys(AMBIENTES).map(a=>`<option>${a}</option>`).join('')}</select>
+  <label class="lb">Nunca a família…</label><select id="r_fam">${Object.keys(CORES).map(a=>`<option>${a}</option>`).join('')}</select>
+  <label class="lb">…na categoria</label><select id="r_cat">${Object.values(GRUPOS).flatMap(g=>g.cats).map(a=>`<option>${a}</option>`).join('')}</select>
+  <button class="btn btn-p" style="margin-top:14px" onclick="V.addRegra()">Guardar regra</button>`)},
+ guardarPerfil(){const g=id=>($(id)?.value||'').trim();
+  DB.profile={...DB.profile,nome:g('p_nome'),bairro:g('p_bairro'),idade:+g('p_idade')||null,altura:+g('p_altura')||null,
+   cabelo:g('p_cabelo'),porte:g('p_porte'),tom:g('p_tom'),subtom:g('p_subtom')};
+  DB.budget=+$('p_budget')||0;save();toast('Perfil actualizado.');render()},
+ reset(){modal(`<h3 class="serif" style="font-size:22px">Apagar tudo?</h3><p class="mut">Base de dados volta a vazia (RGPD por desenho).</p>
+  <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
+  <button class="btn danger" style="flex:1" onclick="localStorage.removeItem(LS);location.reload()">Apagar</button></div>`);},
+ /* ---- testes ---- */
+ testes(){DB.lastTest=testesPropriedade();save();render();
+  toast(DB.lastTest.erro||((DB.lastTest.viol===0?'✅ 0 violações em ':'❌ violações: ')+DB.lastTest.cand.toLocaleString('pt-PT')+' candidatos'))}
+};
+function planosSemana(){const res=[];const uso={};
+ for(let i=0;i<7;i++){const dt=addD(hoje(),i);const dw=new Date(dt+'T12:00').getDay();
+  const env=dw>=1&&dw<=5?'TRABALHO':dw===6?'SOCIAL':'CASUAL';
+  let looks=gerarLooks(env,0,dt);
+  looks=looks.map(l=>({...l,adj:l.score-3*((uso[l.b.id]||0)+(uso[l.t.id]||0)+(uso[l.s.id]||0))})).sort((a,b)=>b.adj-a.adj);
+  const L=looks[0];if(L){[L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>uso[p.id]=(uso[p.id]||0)+1)}
+  res.push({dt,env,cl:clima(dt),L,snap:L?snapshot(L):null})}
+ return res}
+
+/* ================= VISTAS ================= */
+function chipClima(cl){return `<span class="pill">${cl.chove?'☔':'☀'} ${cl.temp}°C · UV${cl.uv}${cl.chove?' · chuva':' '}</span>`}
+function dotsF(f){return '●'.repeat(Math.round(f))+'○'.repeat(5-Math.round(f))}
+function imgP(p,cls){return `<img class="thumb ${cls||''}" src="${p.foto}" alt="${esc(p.nome)}">`}
+function anel(v){return `<div class="ring" style="--v:${v}"><b>${v}</b></div>`}
+
+function vOn
