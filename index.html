@@ -53,6 +53,8 @@ h1,h2,h3{margin:0}
 .chip.on{background:var(--navy);color:var(--cream);border-color:var(--navy)}
 html.dark .chip.on{color:#12181f}
 .chip:active{transform:scale(.96)}
+.chip .ck{display:none}
+.chip.on .ck{display:inline;font-weight:800}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
   font-family:'Manrope';font-weight:700;font-size:14px;border-radius:14px;padding:13px 20px;transition:.15s}
 .btn:active{transform:scale(.97)}
@@ -136,7 +138,7 @@ table.tb td,table.tb th{border:1px solid var(--line);padding:7px 9px;text-align:
 <div id="modal-root"></div>
 <script>
 /* =========================================================
-   VESTA v4 · F0 completo — PWA · Maputo · dados 100% locais
+   VESTA v4 · F0++ — análise profunda de modelo + onboarding claro
    ========================================================= */
 const LS='vesta_v4';
 function fresh(){return{onboard:false,obStep:1,body:{},profile:{},pecas:[],dias:{},hist:[],regras:[],
@@ -145,7 +147,7 @@ let DB=JSON.parse(localStorage.getItem(LS)||'null')||fresh();
 if(!('wishlist' in DB))DB.wishlist=[];
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
 let TAB='hoje';
-let SESS={env:null,delta:0,looks:[],idx:0,ms:0,pend:null,sub:null,
+let SESS={env:null,delta:0,looks:[],idx:0,ms:0,pend:null,sub:null,modelo:null,pendImport:null,
   obPeca:{familias:['navy'],estacoes:[],ambientes:[],formalidade:3}};
 const CORES={'navy':'#24344d','branco':'#f7f4ec','creme':'#e9dfc8','camel':'#b98d5e','cognac':'#96552b',
  'azul-céu':'#a8c3d6','oliva':'#6b6b45','taupe':'#8a7f72','cinza':'#9a9a9a','ganga escura':'#31405c',
@@ -167,7 +169,7 @@ const HARM={
 const harmonia=(a,b)=>a===b||(HARM[a]||[]).includes(b);
 const GRUPOS={topo:{lb:'Topo',cats:['Camisa','T-shirt','Polo','Top de kapulana']},
  baixo:{lb:'Baixo',cats:['Calça','Ganga','Calção']},
- calcado:{lb:'Calçado',cats:['Loafers','Ténis','Sapatos','Sandálias']},
+ calcado:{lb:'Calçado',cats:['Loafers','Ténis','Sapatos','Sandálias','Botas de trabalho','Botas']},
  camada:{lb:'Camada',cats:['Blazer','Casaco leve','Colete']},
  acessorio:{lb:'Acessório',cats:['Cinto','Relógio','Óculos','Anéis','Clutch']}};
 const catGrupo=c=>{for(const g in GRUPOS)if(GRUPOS[g].cats.includes(c))return g;return'topo'};
@@ -177,12 +179,12 @@ const TECIDOS=['algodão','linho','alfaiataria','ganga','camurça','couro','malh
 const ESTADOS=['como novo','bom','usado','gasto'];
 const BAIRROS=['Polana','Sommerschield','Malhangalene','Alto Maé','Costa do Sol','Coop','FPLM','Outro'];
 const ANGULOS=[
- {id:'frente',lb:'Corpo inteiro · frente',dica:'afasta o telemóvel dois passos, pés e cabeça visíveis'},
- {id:'perfil',lb:'Corpo inteiro · perfil',dica:'braços relaxados, perfil completo'},
- {id:'rosto_frente',lb:'Rosto · frente',dica:'luz natural de frente, sem óculos'},
- {id:'rosto_perfil',lb:'Rosto · perfil',dica:'queixo paralelo ao chão'},
- {id:'ombros',lb:'Ombros / tronco',dica:'dos ombros à cintura, frente'},
- {id:'punho',lb:'Punho',dica:'punho e mão relaxada, para proporções e acessórios'}];
+ {id:'frente',lb:'1 · Corpo inteiro, de FRENTE',dica:'Dos PÉS à CABEÇA, de frente para a câmara. Telemóvel na VERTICAL, à altura do teu peito. Braços ligeiramente afastados do tronco, pés visíveis.'},
+ {id:'perfil',lb:'2 · Corpo inteiro, de PERFIL',dica:'Rodado 90° (o ombro aponta à câmara), dos PÉS à CABEÇA. Braços relaxados ao lado do corpo, sem bolsos.'},
+ {id:'rosto_frente',lb:'3 · ROSTO de frente',dica:'Só ROSTO e PESCOÇO (do ombro para cima). Sem óculos nem chapéu. Luz natural de frente — encosta-te a uma janela.'},
+ {id:'rosto_perfil',lb:'4 · ROSTO de perfil',dica:'Só ROSTO de LADO (do ombro para cima). Queixo paralelo ao chão, cabelo como usas normalmente.'},
+ {id:'ombros',lb:'5 · OMBROS e tronco',dica:'Do PESCOÇO à CINTURA, de frente. Serve para medir a largura dos ombros e o caimento dos topos.'},
+ {id:'punho',lb:'6 · PUNHO e mão',dica:'PUNHO e MÃO relaxados em primeiro plano. Calibra relógio, anéis e proporções de acessórios.'}];
 const ARQ=[
  {n:'Calça navy de alfaiataria',grupo:'baixo',cat:'Calça',fam:'navy',tec:'alfaiataria',form:4,amb:['TRABALHO','SOCIAL'],est:['verão','meia-estação'],pr:[1600,3200,6800]},
  {n:'Calça creme com dobra',grupo:'baixo',cat:'Calça',fam:'creme',tec:'algodão',form:2,amb:['CASUAL','SOCIAL'],est:['verão'],pr:[1400,2800,5500]},
@@ -193,6 +195,8 @@ const ARQ=[
  {n:'Camisa de kapulana',grupo:'topo',cat:'Top de kapulana',fam:'kapulana',tec:'kapulana',form:2,pad:true,amb:['CASUAL','SOCIAL'],est:['verão','meia-estação'],pr:[700,1500,3200]},
  {n:'Loafers cognac',grupo:'calcado',cat:'Loafers',fam:'cognac',tec:'couro',form:3,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação','inverno'],pr:[2200,4500,9500]},
  {n:'Ténis discretos brancos',grupo:'calcado',cat:'Ténis',fam:'branco',tec:'couro',form:1,amb:['CASUAL','DESPORTO','VIAGENS'],est:['verão','meia-estação','inverno'],pr:[1800,3500,7500]},
+ {n:'Botas de trabalho castanhas',grupo:'calcado',cat:'Botas de trabalho',fam:'castanho',tec:'couro',form:2,amb:['TRABALHO','CASUAL'],est:['verão','meia-estação','inverno'],pr:[2500,4800,9800]},
+ {n:'Botas chelsea cognac',grupo:'calcado',cat:'Botas',fam:'cognac',tec:'couro',form:3,amb:['CASUAL','SOCIAL'],est:['meia-estação','inverno'],pr:[2800,5200,10500]},
  {n:'Cinto castanho de couro',grupo:'acessorio',cat:'Cinto',fam:'castanho',tec:'couro',form:3,amb:['TRABALHO','SOCIAL','CASUAL'],est:['verão','meia-estação','inverno'],pr:[600,1200,2600]},
  {n:'Casaco leve camel',grupo:'camada',cat:'Casaco leve',fam:'camel',tec:'malha',form:3,amb:['VIAGENS','CASUAL'],est:['meia-estação','inverno'],pr:[2800,5200,9800]}];
 const LOJAS=[['Jet · baixo Maé','Pep'],['Mr Price · Baía Mall','Woolworths · Polana Shopping'],
@@ -208,6 +212,7 @@ function toast(m){const t=document.createElement('div');t.className='toast';t.te
  $('toasts').appendChild(t);setTimeout(()=>t.remove(),2800)}
 function modal(html){$('modal-root').innerHTML=`<div class="modal" onclick="if(event.target===this)V.fechar()"><div class="sheet">${html}</div></div>`}
 function fmtData(iso,curto){return new Date(iso+'T12:00').toLocaleDateString('pt-PT',curto?{day:'2-digit',month:'2-digit'}:{weekday:'long',day:'numeric',month:'long'})}
+function defEnv(){const dw=new Date().getDay();return dw>=1&&dw<=5?'TRABALHO':dw===6?'SOCIAL':'CASUAL'}
 function ic(n,s=20){const p={
  hoje:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>',
  noite:'<path d="M20 13A8 8 0 1 1 11 4a7 7 0 0 0 9 9z"/>',
@@ -223,8 +228,8 @@ function comprimir(img,max=900,q=.72){const r=Math.min(1,max/Math.max(img.width,
  c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)}
 function lerImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();
  i.onload=()=>res({i,u});i.onerror=rej;i.src=u})}
-function pickFile(cb,cam){const i=document.createElement('input');i.type='file';i.accept='image/*';
- if(cam)i.capture='environment';i.onchange=()=>{if(i.files[0])cb(i.files[0])};i.click()}
+function pickFile(cb,cam,accept){const i=document.createElement('input');i.type='file';i.accept=accept||'image/*';
+ if(cam&&!accept)i.capture='environment';i.onchange=()=>{if(i.files[0])cb(i.files[0])};i.click()}
 function clima(iso){const m=+iso.slice(5,7);const chuv=m>=11||m<=3;const seed=hashStr(iso)%100;
  const chove=seed<(chuv?55:12);const temp=chuv?27+(seed%6):19+(seed%8);
  const est=chuv?'verão':(m===4||m===5||m===10?'meia-estação':'inverno');
@@ -266,6 +271,7 @@ function pontuar({b,t,s,cam,acc},env,alvo,cl){let sc=55;const av=[],pq=[];const 
  todos.forEach(p=>{sc+=((DB.pesoPecas[env]||{})[p.id]||0)});
  if(!cam&&alvo>=3.5)av.push('sem camada — um blazer elevaria o conjunto');
  if(['Loafers','Ténis'].includes(s.categoria))av.push('meias invisíveis; calça com dobra de 2 cm a rasar o peito do pé');
+ if(['Botas','Botas de trabalho'].includes(s.categoria))av.push('botas: calça por cima do cano ou com dobra alta');
  return{b,t,s,cam,acc,score:Math.round(sc),avisos:av.slice(0,4),porques:pq.slice(0,3)}}
 function gerarLooks(env,delta=0,dataIso=hoje()){const alvo=alvoForm(env)+delta;const cl=clima(dataIso);
  const Ts=pecasDe('topo',env),Bs=pecasDe('baixo',env),Ss=pecasDe('calcado',env),Cs=pecasDe('camada',env);
@@ -305,21 +311,79 @@ function sugestoes(){const out=[];
  return out.sort((x,y)=>y.score-x.score).slice(0,8)}
 function ofertas(a){return[0,1,2].map(i=>({gama:['entrada','média','premium'][i],
  loja:LOJAS[i][hashStr(a.n+i)%LOJAS[i].length],preco:a.pr[i]}))}
-function gerarLooksSimulada(env,sim){const cl=clima(hoje());
- const g=gr=>{const l=DB.pecas.filter(p=>p.grupo===gr&&(p.ambientes.length===0||p.ambientes.includes(env)));
-  return sim.grupo===gr?[...l,sim]:l};
- const T=g('topo'),B=g('baixo'),S=g('calcado');const out=[];
- for(const b of B)for(const t of T)for(const s of S){
-  if(violaDuras(env,[b,t,s],cl))continue;
-  if(harmonia(t.familias[0],b.familias[0])&&harmonia(b.familias[0],s.familias[0]))out.push({b,t,s})}
- const com=out.filter(l=>[l.b,l.t,l.s].some(p=>p.id===sim.id));
- return(com.length?com:out).slice(0,1)}
-function combosComArq(sim){const res=[];
- for(const env of['CASUAL','TRABALHO','SOCIAL']){const l=gerarLooksSimulada(env,sim);
-  if(l.length){res.push(l[0]);if(res.length>=2)break}}
- return res}
 function promoDe(n){const week=Math.floor(Date.now()/6048e5);
  return(hashStr(n+'·'+week)%100)<35?10+(hashStr(n+week)%16):0}
+/* ---------- análise PROFUNDA da imagem modelo (on-device) ---------- */
+function rgb2hsv(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);const d=mx-mn;let h=0;
+ if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}
+ return{h,s:mx?d/mx:0,v:mx}}
+async function analisarImagem(file){const{i}=await lerImg(file);
+ const S=64,c=document.createElement('canvas');c.width=S;c.height=S;const x=c.getContext('2d');
+ x.drawImage(i,0,0,S,S);const d=x.getImageData(0,0,S,S).data;
+ const famAt=(r,g,b)=>{let best=null,bd=1e12;
+  for(const fam in CORES){const h=CORES[fam];
+   const rr=parseInt(h.substr(1,2),16),gg=parseInt(h.substr(3,2),16),bb=parseInt(h.substr(5,2),16);
+   const ds=(r-rr)*(r-rr)+(g-gg)*(g-gg)+(b-bb)*(b-bb);if(ds<bd){bd=ds;best=fam}}
+  return best};
+ const border={};
+ for(let xx=0;xx<S;xx++)for(const yy of[0,1,S-2,S-1]){const p=(yy*S+xx)*4;
+  const f=famAt(d[p],d[p+1],d[p+2]);border[f]=(border[f]||0)+1}
+ const bg=Object.entries(border).sort((a,b)=>b[1]-a[1])[0]?.[0];
+ const zones={topo:{},baixo:{},calcado:{}};
+ let lumSum=0,satSum=0,edge=0,warm=0,cool=0;const widths=[];
+ for(let y=0;y<S;y++){let rowFg=0;
+  for(let xx=0;xx<S;xx++){const p=(y*S+xx)*4;const r=d[p],g=d[p+1],b=d[p+2];
+   const hsv=rgb2hsv(r,g,b);lumSum+=hsv.v;satSum+=hsv.s;
+   if(hsv.s>0.25){if(hsv.h<70||hsv.h>330)warm++;else if(hsv.h>150&&hsv.h<270)cool++}
+   const fam=famAt(r,g,b);
+   const z=y<S*0.45?'topo':y<S*0.8?'baixo':'calcado';
+   if(fam!==bg){zones[z][fam]=(zones[z][fam]||0)+1;rowFg++}
+  }
+  widths.push(rowFg)}
+ for(let y=1;y<S-1;y++)for(let xx=1;xx<S-1;xx++){const p=(y*S+xx)*4;
+  const l1=.299*d[p]+.587*d[p+1]+.114*d[p+2];const p2=(y*S+xx+1)*4;
+  const l2=.299*d[p2]+.587*d[p2+1]+.114*d[p2+2];edge+=Math.abs(l1-l2)}
+ const lum=lumSum/(S*S)/255,sat=satSum/(S*S),pad=edge/(S*S)/255;
+ const top3=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+ const wTop=widths.slice(Math.floor(S*0.15),Math.floor(S*0.45)).reduce((a,b)=>a+b,0)/(S*0.3);
+ const wBot=widths.slice(Math.floor(S*0.5),Math.floor(S*0.8)).reduce((a,b)=>a+b,0)/(S*0.3);
+ const silh=wBot<wTop*0.8?'justa/tailored':wBot>wTop*1.25?'alargada/relaxada':'equilibrada';
+ const zB=zones.baixo;
+ const formal=Math.max(1,Math.min(5,Math.round((1-sat)*6+(pad<0.08?1:0)+
+  ((zB['navy']||zB['cinza']||zB['castanho'])?1:0)-(zB['ganga escura']?1.5:0))));
+ const tecido=pad>0.14?'padrão/kapulana':sat<0.18&&lum>0.4?'alfaiataria lisa':lum>0.75?'linho/leve':'ganga/malha';
+ const temp=warm>=cool?'quente':'fria';
+ const pal=[...new Set([top3(zones.topo)[0],top3(zones.baixo)[0],top3(zones.calcado)[0]])].filter(Boolean).slice(0,3);
+ return{topo:top3(zones.topo)[0]||'navy',baixo:top3(zones.baixo)[0]||'navy',calcado:top3(zones.calcado)[0]||'castanho',
+  pal,lum,sat,padrao:pad>0.12,silh,formal,tecido,temp}}
+function montarModelo(an){const env=SESS.env||defEnv();
+ const pick=(g,fam)=>{let best=null,bs=-1e9;
+  for(const p of pecasDe(g,env)){let s=0;
+   if(p.familias[0]===fam)s+=30;else if(harmonia(p.familias[0],fam))s+=10;
+   s-=Math.abs(p.formalidade-an.formal)*2;
+   if(an.padrao&&p.padrao)s+=6;
+   if(s>bs){bs=s;best=p}}
+  return{best,match:!!best&&best.familias[0]===fam}};
+ const t=pick('topo',an.topo),b=pick('baixo',an.baixo),s=pick('calcado',an.calcado);
+ let cam=null;const cl=clima(hoje());
+ if(cl.temp<24||an.formal>=3.5)cam=pick('camada',an.topo).best;
+ const matched=[t.match,b.match,s.match].filter(Boolean).length;
+ const sim=Math.round(matched/3*100);
+ const PREC={topo:[900,1800,3900],baixo:[1400,2800,5500],calcado:[2200,4500,9500],camada:[3500,6900,13000]};
+ const mk=(g,fam)=>{const cat=g==='topo'?'Camisa':g==='baixo'?'Calça':g==='calcado'?'Sapatos':'Blazer';
+  return{n:`${cat} ${fam} · ${an.tecido.split('/')[0]} (específica do modelo)`,grupo:g,cat,fam,
+   tec:an.padrao&&g==='topo'?'kapulana':'algodão',form:an.formal,amb:[env,'CASUAL'],
+   est:['verão','meia-estação','inverno'],pr:PREC[g]}};
+ const faltam=[];
+ if(!t.match)faltam.push({g:'topo',arq:ARQ.find(a=>a.grupo==='topo'&&a.fam===an.topo)||mk('topo',an.topo)});
+ if(!b.match)faltam.push({g:'baixo',arq:ARQ.find(a=>a.grupo==='baixo'&&a.fam===an.baixo)||mk('baixo',an.baixo)});
+ if(!s.match)faltam.push({g:'calcado',arq:ARQ.find(a=>a.grupo==='calcado'&&a.fam===an.calcado)||mk('calcado',an.calcado)});
+ const pr=DB.profile||{};const cons=[];
+ cons.push(`Caimento do modelo: silhueta ${an.silh}. ${pr.porte?`No teu porte ${pr.porte}: `:''}${an.silh==='justa/tailored'?'mantém fit tailored e calça com dobra de 2 cm.':an.silh==='alargada/relaxada'?'equilibra volumes — se o baixo é largo, aperta o topo.':'proporção segura para todos os ambientes.'}`);
+ cons.push(`Estética: formalidade ${an.formal}/5 · ${an.padrao?'padrão forte presente (kapulana conta como padrão)':'sem padrão forte'} · pano estimado: ${an.tecido} · temperatura de cor ${an.temp}.`);
+ if(pr.subtom)cons.push(`Colorimetria: o teu subtom ${pr.subtom} ${an.temp==='quente'?'confirma a':'pede moderação na'} paleta ${an.pal.join(', ')}.`);
+ if(pr.altura)cons.push(`Altura ${pr.altura} cm: ${an.silh==='alargada/relaxada'?'volumes grandes podem encurtar a silhueta — prefere a versão tailored.':'o corte do modelo favorece a tua linha.'}`);
+ return{an,env,t:t.best,b:b.best,s:s.best,cam,sim,faltam,cons}}
 function relatorioSemanal(){const dias=[];for(let i=0;i<7;i++)dias.push(addD(hoje(),-i));
  const hs=DB.hist.filter(h=>dias.includes(h.data));
  const noites=hs.filter(h=>h.noite);
@@ -329,7 +393,7 @@ function relatorioSemanal(){const dias=[];for(let i=0;i<7;i++)dias.push(addD(hoj
  const fitMed=fits.length?Math.round(fits.reduce((a,b)=>a+b,0)/fits.length):null;
  return{hs,noites,aceit,fitMed,ind:indiceRoupa(),prox:sugestoes()[0]}}
 function testesPropriedade(){const t0=performance.now();const cl=clima(hoje());const P=DB.pecas;
- if(P.length<3)return{erro:'Adiciona pelo menos 3 peças para correr o teste (o onboarding exige 4).'};
+ if(P.length<3)return{erro:'Adiciona pelo menos 3 peças para correr o teste (o onboarding exige 8).'};
  let cand=0,aceites=0,viol=0;
  const checa=(env,items)=>{
   if(env==='TRABALHO'&&items.some(p=>p.grupo==='baixo'&&(p.familias.includes('creme')||p.familias.includes('branco'))))return true;
@@ -364,6 +428,7 @@ function svgPeca(fam,cat,grupo,padrao){const c=CORES[fam]||'#8a7f72';const fundo
  else if(grupo==='baixo')sh=`<path d="M42 12h36l6 34-8 34H62l-2-40-2 40H44l-8-34z" ${fill} stroke="#00000026" stroke-width="2"/><line x1="42" y1="20" x2="78" y2="20" stroke="#00000022" stroke-width="2"/>`;
  else if(cat==='Loafers'||cat==='Sapatos')sh=`<path d="M18 62c0-14 14-26 30-26 18 0 26 8 44 12 10 2 14 8 14 14H18z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M18 62h88v6H18z" fill="#00000030"/><ellipse cx="52" cy="46" rx="12" ry="5" fill="#00000018"/>`;
  else if(cat==='Ténis'||cat==='Sandálias')sh=`<path d="M16 60c2-16 12-22 26-22l10 8c14 2 40 6 50 14H16z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M16 60h86v8H16z" fill="#f7f4ec" stroke="#00000022"/>`;
+ else if(cat==='Botas'||cat==='Botas de trabalho')sh=`<path d="M34 14h26v38c16 2 32 10 36 18H34z" ${fill} stroke="#00000026" stroke-width="2"/><path d="M34 70h62v8H34z" fill="#00000030"/>${cat==='Botas de trabalho'?'<path d="M38 22h18M38 30h18M38 38h18" stroke="#00000030" stroke-width="2"/>':''}`;
  else if(cat==='Cinto')sh=`<rect x="14" y="38" width="92" height="14" rx="4" ${fill} stroke="#00000026" stroke-width="2"/><rect x="50" y="34" width="18" height="22" rx="4" fill="none" stroke="#b98d5e" stroke-width="3"/>`;
  else if(cat==='Relógio')sh=`<rect x="50" y="8" width="20" height="70" rx="6" ${fill} stroke="#00000026" stroke-width="2"/><circle cx="60" cy="43" r="17" fill="#f7f4ec" stroke="#b98d5e" stroke-width="3"/><path d="M60 43V33M60 43l7 5" stroke="#20242b" stroke-width="2"/>`;
  else if(cat==='Óculos')sh=`<circle cx="40" cy="45" r="15" ${fill} opacity=".85" stroke="#23201d" stroke-width="2.5"/><circle cx="82" cy="45" r="15" ${fill} opacity=".85" stroke="#23201d" stroke-width="2.5"/><path d="M55 45h12M25 45H14M97 45h11" stroke="#23201d" stroke-width="2.5"/>`;
@@ -400,7 +465,7 @@ const V={
   const r=await qcFoto(f,{minH:rosto?300:420,vertical:!rosto,tol:55});
   if(r.ok){DB.body[id]={src:comprimir(r.img,800,.7),q:r.q};save();toast('Boa foto. Aprovada ('+r.q+'/100).')}
   else{DB.body[id]={erro:r.prob,q:r.q};save();toast('O fotógrafo reclama: refaz a foto.')}
-  render()},true)},
+  render()})},
  guardarIdentidade(){const g=id=>($(id)?.value||'').trim();
   if(!g('p_nome')){toast('Diz-nos o teu nome.');return}
   DB.profile={nome:g('p_nome'),bairro:g('p_bairro'),idade:+g('p_idade')||null,altura:+g('p_altura')||null,
@@ -412,30 +477,25 @@ const V={
   return `<h3 class="serif" style="font-size:24px">Nova peça</h3>
   <label class="lb">Categoria</label>
   <select id="f_cat">${Object.values(GRUPOS).map(g=>`<optgroup label="${g.lb}">${g.cats.map(c=>`<option>${c}</option>`).join('')}</optgroup>`).join('')}</select>
-  <label class="lb">Cor (família)</label><div class="chips" id="f_cor">${Object.keys(CORES).map(c=>`<span class="chip ${o.familias[0]===c?'on':''}" onclick="V._cor(this,'${c}')"><span class="sw" style="background:${CORES[c]}"></span> ${c}</span>`).join('')}</div>
+  <label class="lb">Cor (família) · ✓ = seleccionada</label><div class="chips" id="f_cor">${Object.keys(CORES).map(c=>`<span class="chip ${o.familias[0]===c?'on':''}" onclick="V._cor(this,'${c}')"><span class="ck">✓</span><span class="sw" style="background:${CORES[c]}"></span> ${c}</span>`).join('')}</div>
   <label class="lb">Foto da peça (opcional)</label>
-  <div class="row"><button class="btn btn-s" onclick="V._fotoPeca()">📷 Tirar/carregar foto</button>
+  <div class="row"><button class="btn btn-s" onclick="V._fotoPeca()">📷 Foto ou galeria</button>
   <span id="f_foto_st" class="mut">${o.foto?'foto ✓':'sem foto → peça desenhada'}</span></div>
   <div class="grid2"><div><label class="lb">Tecido</label><select id="f_tec">${TECIDOS.map(t=>`<option>${t}</option>`).join('')}</select></div>
   <div><label class="lb">Estado</label><select id="f_est">${ESTADOS.map(t=>`<option>${t}</option>`).join('')}</select></div></div>
   <label class="lb">Formalidade · <b id="f_form_v">${o.formalidade}</b>/5</label>
   <input type="range" min="1" max="5" step="1" value="${o.formalidade}" style="width:100%" oninput="$('f_form_v').textContent=this.value;SESS.obPeca.formalidade=+this.value">
-  <label class="lb">Estações</label><div class="chips" id="f_est_s">${['verão','meia-estação','inverno'].map(v=>`<span class="chip ${o.estacoes.includes(v)?'on':''}" onclick="V._tgl(this,'estacoes','${v}')">${v}</span>`).join('')}</div>
-  <label class="lb">Ambientes onde usas</label><div class="chips" id="f_amb">${Object.keys(AMBIENTES).map(v=>`<span class="chip ${o.ambientes.includes(v)?'on':''}" onclick="V._tgl(this,'ambientes','${v}')">${v.toLowerCase()}</span>`).join('')}</div>
+  <label class="lb">Estações</label><div class="chips" id="f_est_s">${['verão','meia-estação','inverno'].map(v=>`<span class="chip ${o.estacoes.includes(v)?'on':''}" onclick="V._tgl(this,'estacoes','${v}')"><span class="ck">✓</span>${v}</span>`).join('')}</div>
+  <label class="lb">Ambientes onde usas</label><div class="chips" id="f_amb">${Object.keys(AMBIENTES).map(v=>`<span class="chip ${o.ambientes.includes(v)?'on':''}" onclick="V._tgl(this,'ambientes','${v}')"><span class="ck">✓</span>${v.toLowerCase()}</span>`).join('')}</div>
   <div style="display:flex;gap:10px;margin-top:18px"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
-  <button class="btn btn-p" style="flex:2" onclick="V.guardarPeca(false)">Guardar peça</button></div>`},
+  <button class="btn btn-p" style="flex:2" onclick="V.guardarPeca()">Guardar peça</button></div>`},
  _cor(el,c){SESS.obPeca.familias=[c];[...el.children].forEach(x=>x.classList.toggle('on',x===el))},
  _tgl(el,arr,v){const a=SESS.obPeca[arr];const i=a.indexOf(v);i>=0?a.splice(i,1):a.push(v);el.classList.toggle('on')},
  _fotoPeca(){pickFile(async f=>{const r=await qcFoto(f,{minH:240,vertical:false,tol:45});
   if(r.ok){SESS.obPeca.foto=comprimir(r.img,700,.72);$('f_foto_st').textContent='foto ✓ aprovada ('+r.q+')';toast('Foto da peça aprovada.')}
   else{SESS.obPeca.foto=null;$('f_foto_st').textContent='sem foto → peça desenhada';
-   toast('⚠ '+r.prob[0]+' Podes guardar sem foto.')}},true)},
- guardarPeca(force){const o=SESS.obPeca;const cat=$('f_cat').value;const fam=o.familias[0]||'navy';
-  if(!force){const dup=DB.pecas.find(p=>p.categoria===cat&&p.familias[0]===fam&&Math.abs(p.formalidade-o.formalidade)<=1);
-   if(dup){modal(`<h3 class="serif" style="font-size:22px">Possível duplicado</h3>
-    <p class="mut">Já tens <b>${esc(dup.nome)}</b> (${dup.estado}). O grafo evita duplicados — guardar mesmo assim?</p>
-    <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
-    <button class="btn btn-p" style="flex:1" onclick="V.guardarPeca(true)">Guardar mesmo assim</button></div>`);return}}
+   toast('⚠ '+r.prob[0]+' Podes guardar sem foto.')}})},
+ guardarPeca(){const o=SESS.obPeca;const cat=$('f_cat').value;const fam=o.familias[0]||'navy';
   const g=catGrupo(cat);
   const nome=(cat==='Calça'?`Calça ${fam}`:`${cat} ${fam}`).replace(/^./,c=>c.toUpperCase());
   DB.pecas.push({id:uid(),nome,categoria:cat,grupo:g,familias:[fam],tecido:$('f_tec').value,estado:$('f_est').value,
@@ -454,6 +514,49 @@ const V={
   SESS.ms=Math.round(performance.now()-t0);
   if(!SESS.looks.length)toast('O grafo não encontrou caminho válido — faltam peças. Vê “Para Comprar”.');
   render()},
+ combosIA(){SESS.env=SESS.env||defEnv();const t0=performance.now();
+  SESS.looks=gerarLooks(SESS.env,0);SESS.idx=0;SESS.ms=Math.round(performance.now()-t0);
+  if(!SESS.looks.length){toast('Ainda faltam peças para combinar.');return}
+  toast('✨ Combinações inteligentes com simulação de imagem.');render()},
+ lookModelo(){pickFile(async f=>{toast('A analisar o modelo: cores, pano, caimento, estética…');
+  const an=await analisarImagem(f);SESS.modelo=montarModelo(an);
+  modal(V._modeloHtml())})},
+ _modeloHtml(){const m=SESS.modelo;if(!m)return'';const an=m.an;
+  const L=m.b&&m.t&&m.s?{b:m.b,t:m.t,s:m.s,cam:m.cam,acc:[]}:null;
+  return `<h3 class="serif" style="font-size:24px">Look a partir de imagem</h3>
+  <label class="lb">Análise do modelo (no teu dispositivo)</label>
+  <div class="chips">
+   <span class="pill">paleta: ${an.pal.join(' + ')}</span>
+   <span class="pill">formalidade ${an.formal}/5</span>
+   <span class="pill">silhueta ${an.silh}</span>
+   <span class="pill">${an.padrao?'com padrão':'sem padrão'}</span>
+   <span class="pill">pano: ${an.tecido}</span>
+   <span class="pill">cor ${an.temp}</span>
+  </div>
+  ${L?`<div class="divid"></div><b style="font-size:13px">Look similar com as tuas peças · semelhança ${m.sim}%</b>
+   <img class="thumb" style="width:100%;aspect-ratio:3/2;margin-top:8px" src="${svgEditorial(L)}">
+   <div class="lookgrid" style="margin-top:8px">${imgP(m.t)}${imgP(m.b)}${imgP(m.s)}${m.cam?imgP(m.cam):''}</div>
+   <button class="btn btn-p" style="margin-top:10px" onclick="V.usarModelo()">Guardar como plano do dia</button>`
+  :`<p class="mut" style="margin-top:10px">Ainda não tens peças suficientes para este modelo.</p>`}
+  <div class="divid"></div><b style="font-size:13px">Como montar no TEU corpo</b>
+  <ul style="margin:6px 0 0 18px;padding:0;font-size:12.5px;line-height:1.7;color:var(--mut)">${m.cons.map(c=>`<li>${c}</li>`).join('')}</ul>
+  ${m.faltam.length?`<div class="divid"></div><b style="font-size:13px">Peça específica em falta — adquirir</b>
+   ${m.faltam.map((x,i)=>`<div style="margin-top:10px"><div class="row" style="justify-content:space-between">
+    <b style="font-size:13px">${x.arq.n}</b><span class="pill bad">em falta</span></div>
+    ${ofertas(x.arq).map((o,t)=>`<div class="row" style="justify-content:space-between;margin-top:6px">
+     <div><span class="pill">${o.gama}</span> <span style="font-size:12px;font-weight:700">${o.loja}</span>
+     <div class="mut" style="font-size:11px">${fmtMt(o.preco)}</div></div>
+     <button class="btn btn-s" onclick="V.comprarArq(${i},${t})">Comprar</button></div>`).join('')}</div>`).join('')}`
+  :`<p class="okk" style="margin-top:8px">Tens tudo o que o modelo pede. 👌</p>`}
+  <button class="btn btn-g" style="margin-top:14px;width:100%" onclick="V.fechar()">Fechar</button>`},
+ usarModelo(){const m=SESS.modelo;if(!m||!m.b)return;
+  const snap=snapshot({b:m.b,t:m.t,s:m.s,cam:m.cam,acc:[],score:m.sim,avisos:[],porques:['look inspirado em imagem modelo']});
+  DB.dias[hoje()]={...(DB.dias[hoje()]||{}),env:m.env,hora:'08:00',look:snap};
+  const hi=DB.hist.findIndex(x=>x.data===hoje());
+  if(hi>=0)DB.hist[hi]={...DB.hist[hi],env:m.env,look:snap};else DB.hist.push({data:hoje(),env:m.env,look:snap});
+  save();V.fechar();SESS.looks=[];TAB='hoje';toast('Plano do dia guardado a partir do modelo.');render()},
+ comprarArq(i,t){const x=SESS.modelo.faltam[i];const of=ofertas(x.arq)[t];
+  SESS.pend={a:x.arq,preco:of.preco,loja:of.loja,gama:of.gama,promo:0};V._modalCompra()},
  altLook(i){SESS.idx=i;render()},
  gostar(v){const L=SESS.looks[SESS.idx];if(!L)return;
   [L.b,L.t,L.s,L.cam,...L.acc].filter(Boolean).forEach(p=>{
@@ -487,7 +590,7 @@ const V={
    const passed=checks.filter(c=>c[1]).length;
    const score=Math.max(40,Math.min(98,Math.round(56+passed*7+(r.lum-85)/6)));
    d.fit={foto:comprimir(r.img,800,.7),score,checks,cons};save();render();
-   toast('Fit check: '+score+'/100')},true)},
+   toast('Fit check: '+score+'/100')})},
  noite(res){const d=DB.dias[hoje()];if(!d)return;
   const neg=['criticado','mal falado','inadequado'].includes(res);
   modal(`<h3 class="serif" style="font-size:24px">Noite · ${res}</h3>
@@ -536,6 +639,19 @@ const V={
   DB.wishlist.push({n:s.a.n,data:hoje()});save();
   toast('♡ Na wishlist — a VESTA avisa se houver promoção.');render()},
  unwish(i){DB.wishlist.splice(i,1);save();render()},
+ exportar(){const blob=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='vesta-backup-'+hoje()+'.json';a.click();toast('📤 Backup exportado.')},
+ importar(){pickFile(f=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);
+   if(!d||!Array.isArray(d.pecas)){toast('Ficheiro inválido.');return}
+   SESS.pendImport=d;
+   modal(`<h3 class="serif" style="font-size:22px">Importar backup?</h3>
+   <p class="mut">Substitui os dados deste dispositivo por ${d.pecas.length} peças do backup.</p>
+   <div class="row"><button class="btn btn-g" style="flex:1" onclick="V.fechar()">Cancelar</button>
+   <button class="btn btn-p" style="flex:1" onclick="V.confImport()">Importar</button></div>`)}
+  catch(e){toast('Não consegui ler o JSON.')}};r.readAsText(f)},false,'application/json,.json')},
+ confImport(){if(!SESS.pendImport)return;DB=Object.assign(fresh(),SESS.pendImport);
+  if(!('wishlist' in DB))DB.wishlist=[];save();SESS.pendImport=null;V.fechar();toast('📥 Backup importado.');render()},
  addRegra(){const amb=$('r_amb').value,fam=$('r_fam').value,cat=$('r_cat').value;
   DB.regras.push({ambiente:amb,familia:fam,categoria:cat,texto:`Em ${amb}, nunca ${fam} em ${cat}`,ativa:true});
   save();V.fechar();toast('Regra dura adicionada.');render()},
@@ -572,14 +688,14 @@ function vOnbCorpo(){const done=ANGULOS.filter(a=>DB.body[a.id]?.src).length;
  <div class="prog"><i class="on"></i><i></i><i></i></div>
  <div class="kick">Passo 1 de 3 · O teu corpo</div>
  <h2 class="big-q">Seis ângulos.<br>Sem atalhos.</h2>
- <p class="mut">O fotógrafo da VESTA é exigente: enquadramento, luz e orientação são verificados. Cada ângulo obrigatório bloqueia o avanço até aprovação.</p>
+ <p class="mut">Cada ângulo diz <b>exactamente</b> que parte do corpo mostrar e em que posição. Podes <b>tirar foto agora</b> ou <b>carregar da galeria</b> (fotos já tiradas com melhor qualidade). O fotógrafo reclama se a luz, o enquadramento ou a orientação falharem.</p>
  <div style="margin-top:14px">${ANGULOS.map(a=>{const b=DB.body[a.id];
   return `<div class="ob-ang">
    ${b?.src?`<img src="${b.src}">`:`<div class="thumb xs" style="width:52px;height:64px;display:grid;place-items:center;font-size:20px;color:var(--mut)">📷</div>`}
    <div class="st"><b style="font-size:13.5px">${a.lb}</b><div class="mut" style="font-size:11px">${a.dica}</div>
    ${b?.src?`<div class="okk">aprovada · qualidade ${b.q}/100</div>`:''}
    ${b?.erro?`<div class="err">${b.erro.map(e=>'— '+e).join('<br>')}</div>`:''}</div>
-   <button class="btn btn-s" onclick="V.fotoAngulo('${a.id}')">${b?.src?'Repetir':'Fotografar'}</button></div>`}).join('')}</div>
+   <button class="btn btn-s" onclick="V.fotoAngulo('${a.id}')">${b?.src?'Trocar':'Foto ou galeria'}</button></div>`}).join('')}</div>
  <button class="btn btn-p" ${done<6?'disabled':''} onclick="DB.obStep=2;save();render()">Continuar · identidade →</button>
  ${done<6?`<p class="mut" style="text-align:center;margin-top:8px">Faltam ${6-done} ângulos aprovados.</p>`:''}
  </div>`}
@@ -606,17 +722,17 @@ function vOnbIdent(){const p=DB.profile||{};const sel=(id,opts,v)=>`<select id="
  </div>`}
 function vOnbRoupa(){const n=DB.pecas.length;
  const tem=g=>DB.pecas.some(p=>p.grupo===g);
- const ok=n>=4&&tem('topo')&&tem('baixo')&&tem('calcado');
+ const ok=n>=8&&tem('topo')&&tem('baixo')&&tem('calcado');
  return `<div class="wrap fade">
  <div class="prog"><i class="on"></i><i class="on"></i><i class="on"></i></div>
  <div class="kick">Passo 3 de 3 · Guarda-roupa</div>
  <h2 class="big-q">Peça a peça.<br>Só peças REAIS.</h2>
- <p class="mut">Mínimo para abrir a app: <b>4 peças</b> — pelo menos 1 topo, 1 baixo e 1 calçado. Sem foto também dá: a VESTA desenha a peça na cor escolhida. Duplicados são detectados.</p>
+ <p class="mut">Mínimo para abrir a app: <b>8 peças</b> — pelo menos 1 topo, 1 baixo e 1 calçado. Sem foto também dá: a VESTA desenha a peça na cor escolhida. Duplicados são permitidos.</p>
  <div class="card"><div class="row" style="justify-content:space-between">
-  <b>${n}/4 peças</b><span class="pill ${tem('topo')?'ok':''}">topo ${tem('topo')?'✓':'—'}</span>
+  <b>${n}/8 peças</b><span class="pill ${tem('topo')?'ok':''}">topo ${tem('topo')?'✓':'—'}</span>
   <span class="pill ${tem('baixo')?'ok':''}">baixo ${tem('baixo')?'✓':'—'}</span>
   <span class="pill ${tem('calcado')?'ok':''}">calçado ${tem('calcado')?'✓':'—'}</span></div>
-  <div class="bar" style="margin-top:10px"><i style="width:${Math.min(100,n*25)}%"></i></div></div>
+  <div class="bar" style="margin-top:10px"><i style="width:${Math.min(100,n*12.5)}%"></i></div></div>
  <button class="btn btn-p" onclick="V.abrirPeca()">＋ Digitalizar peça</button>
  <div style="margin-top:14px">${DB.pecas.map(p=>`<div class="ob-ang">${imgP(p,'xs')}
   <div class="st"><b style="font-size:13px">${esc(p.nome)}</b><div class="mut" style="font-size:11px">${p.categoria} · ${p.tecido} · formalidade ${p.formalidade}/5</div></div>
@@ -637,6 +753,8 @@ function vPergunta(cl){
    <button class="${SESS.delta===0?'on':''}" onclick="V.setDelta(0)">certo</button>
    <button class="${SESS.delta===1?'on':''}" onclick="V.setDelta(1)">formal</button></div></div></div>
  <button class="btn btn-p" style="margin-top:16px" onclick="V.compor()">Compor look →</button>
+ <button class="btn btn-g" style="margin-top:10px;width:100%" onclick="V.combosIA()">✨ Combinações inteligentes (simulação IA)</button>
+ <button class="btn btn-g" style="margin-top:8px;width:100%" onclick="V.lookModelo()">🖼 Look a partir de imagem (modelo)</button>
  <p class="mut" style="margin-top:10px">Ordem de decisão visível: regras duras → ambiente → corpo/ADN → colorimetria → regras clássicas.</p>
  </div>`}
 function vLookCompose(cl){const L=SESS.looks[SESS.idx];
@@ -716,20 +834,23 @@ function vNoite(){const d=DB.dias[hoje()];const noites=DB.hist.filter(h=>h.noite
    <span class="pill ${['criticado','mal falado','inadequado'].includes(h.noite.res)?'bad':'ok'}">${h.noite.res}</span></div>`).join('')}</div>`:''}
  </div>`}
 function vRoupa(){const ind=indiceRoupa();const maxV=Math.max(1,...Object.values(ind.por));
+ const ordem=['topo','baixo','calcado','camada','acessorio'];
+ const secs=ordem.map(g=>{const ps=DB.pecas.filter(p=>p.grupo===g);if(!ps.length)return'';
+  return `<div class="kick" style="margin:16px 0 8px">${GRUPOS[g].lb} · ${ps.length}</div>`+ps.map(p=>{const v=ind.por[p.id]||0;
+   return `<div class="card" style="padding:12px"><div class="row">
+    ${imgP(p,'sm')}
+    <div style="flex:1"><div class="row" style="gap:6px"><b style="font-size:13.5px">${esc(p.nome)}</b>
+     ${p.nova?'<span class="pill gold">NOVA</span>':''}</div>
+    <div class="mut" style="font-size:11px">${p.categoria} · ${p.tecido} · ${dotsF(p.formalidade)} · ${p.estado} · usado ${p.vezes||0}×</div>
+    <div class="row" style="margin-top:6px"><div class="bar" style="flex:1"><i style="width:${v/maxV*100}%"></i></div>
+    <span class="mut" style="font-size:10.5px">${v} looks</span></div></div>
+    <button class="btn btn-s" onclick="V.removerPeca('${p.id}')">✕</button></div></div>`}).join('')}).join('');
  return `<div class="wrap fade">
  <div class="card"><div class="row" style="justify-content:space-between;align-items:center">
   <div><div class="kick">Índice do guarda-roupa</div><h3 style="font-size:30px">${ind.total} looks válidos</h3></div>
   <button class="btn btn-s" onclick="V.abrirPeca()">＋ peça</button></div>
-  <p class="mut">O grafo é tão bom quanto o inventário — digitaliza ≥ 80% do que usas por mês.</p></div>
- ${DB.pecas.map(p=>{const v=ind.por[p.id]||0;
-  return `<div class="card" style="padding:12px"><div class="row">
-   ${imgP(p,'sm')}
-   <div style="flex:1"><div class="row" style="gap:6px"><b style="font-size:13.5px">${esc(p.nome)}</b>
-    ${p.nova?'<span class="pill gold">NOVA</span>':''}</div>
-   <div class="mut" style="font-size:11px">${p.categoria} · ${p.tecido} · ${dotsF(p.formalidade)} · ${p.estado} · usado ${p.vezes||0}×</div>
-   <div class="row" style="margin-top:6px"><div class="bar" style="flex:1"><i style="width:${v/maxV*100}%"></i></div>
-   <span class="mut" style="font-size:10.5px">${v} looks</span></div></div>
-   <button class="btn btn-s" onclick="V.removerPeca('${p.id}')">✕</button></div></div>`}).join('')||''}
+  <p class="mut">Galeria arrumada por tipo. O grafo é tão bom quanto o inventário — digitaliza ≥ 80% do que usas por mês.</p></div>
+ ${secs||''}
  </div>`}
 function vSemana(){const ps=planosSemana();
  return `<div class="wrap fade">
@@ -755,7 +876,6 @@ function vComprar(){const sg=sugestoes();const cl=clima(hoje());
   <p class="mut" style="margin-top:6px">Nada de camurça nem linho claro até Março — a chuva de Maputo não perdoa. Prioridade: alfaiataria leve e couro.</p></div>`:''}
  ${sg.length?sg.map((s,i)=>{const tot=Object.values(s.deltas).reduce((a,b)=>a+b,0);
   const mx=Math.max(1,...Object.values(s.deltas));
-  const combos=combosComArq(s.sim);
   const naWish=DB.wishlist.some(w=>w.n===s.a.n);
   return `<div class="card">
    <div class="row" style="justify-content:space-between"><b style="font-size:14.5px">${s.a.n}</b>
@@ -767,7 +887,6 @@ function vComprar(){const sg=sugestoes();const cl=clima(hoje());
     <div class="bar" style="flex:1"><i style="width:${v/mx*100}%"></i></div>
     <span class="mut" style="font-size:10px">+${v}</span></div>`).join('')}</div></div>
    <p class="mut" style="margin-top:8px;font-size:12px">Motivo: <b>+${tot} combinações</b>${s.deltas.TRABALHO?`, ${s.deltas.TRABALHO} para trabalho`:''} · combinações por 1000 Mt: <b>${(tot/(s.a.pr[1]/1000)).toFixed(1)}</b></p>
-   ${combos.length?`<div class="row" style="gap:6px;margin-top:8px">${combos.map(c=>`<span class="row" style="gap:2px">${imgP(c.t,'xs')}${imgP(c.b,'xs')}${imgP(c.s,'xs')}</span>`).join('')}</div>`:''}
    <div class="divid"></div>
    ${ofertas(s.a).map((o,t)=>`<div class="row" style="justify-content:space-between;margin-top:8px">
     <div><span class="pill">${o.gama}</span> <span style="font-size:12.5px;font-weight:700">${o.loja}</span>
@@ -833,6 +952,10 @@ function vPerfil(){const p=DB.profile||{};const sel=(id,opts,v)=>`<select id="${
   <label class="lb">Orçamento mensal (Mt)</label><input id="p_budget" type="number" value="${DB.budget}">
   <button class="btn btn-p" style="margin-top:14px" onclick="V.guardarPerfil()">Guardar perfil</button>
  </div>
+ <div class="card"><b style="font-size:13px">Backup & transferência entre dispositivos</b>
+  <p class="mut">Exporta um ficheiro .json com tudo (perfil, corpo, peças, histórico) e importa-o noutro telemóvel/PC. Sem conta, sem cloud.</p>
+  <div class="row" style="margin-top:10px"><button class="btn btn-s" onclick="V.exportar()">📤 Exportar</button>
+  <button class="btn btn-s" onclick="V.importar()">📥 Importar</button></div></div>
  <div class="card"><b style="font-size:13px">Colorimetria</b>
   <p class="mut">Tom ${p.tom||'—'} · subtom ${p.subtom||'quente'} · contraste alto</p>
   <div class="chips" style="margin-top:8px">${palheta.map(c=>`<span class="pill"><span class="sw" style="background:${CORES[c]}"></span> ${c}</span>`).join('')}</div></div>
@@ -873,7 +996,7 @@ CREATE TABLE WISHLIST (id, arquetipo, produto JSON, alerta_promo);</pre></detail
  <details><summary>Arquitectura & privacidade</summary><div class="bd">MVP: PWA 100% local (este ficheiro), localStorage, motor de regras e grafo em JavaScript, offline-first. Roadmap: Flutter/RN + SQLite/SQLCipher, LLM multimodal com skills (pesquisa_produtos, meteorologia, try-on IDM-VTON), ML Kit on-device. Fotos nunca saem do dispositivo · RGPD por desenho.</div></details>
  <details><summary>Roadmap</summary><div class="bd"><table class="tb">
  <tr><th>Fase</th><th>Conteúdo</th></tr>
- <tr><td>F0 · agora</td><td>Este protótipo completo: corpo + peças, grafo, fluxo diário, espelho, noites, gap analysis, wishlist, relatório semanal, compras em Mt, testes de propriedade</td></tr>
+ <tr><td>F0 · agora</td><td>Protótipo completo + backup, botas, combos IA, look-modelo com análise profunda, galeria por tipo</td></tr>
  <tr><td>F1 · Q2</td><td>Flutter/RN + SQLCipher; câmara com recorte/classificação; ML Kit</td></tr>
  <tr><td>F2 · Q3</td><td>Calendário; meteorologia real; notificação matinal; try-on</td></tr>
  <tr><td>F3 · Q4</td><td>Pesquisa multi-loja com afiliados; alertas de promoções</td></tr></table></div></details>
